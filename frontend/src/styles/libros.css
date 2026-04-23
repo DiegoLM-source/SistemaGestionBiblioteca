@@ -1,0 +1,270 @@
+.lb-title { 
+    font-size: 26px; 
+    font-weight: 500; 
+    color: #eeeef3; 
+}
+
+.lb-header { 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between;
+    padding: 11px;
+    margin-bottom: 16px; 
+    background-color: #070A26;
+    border-radius: 10px;
+}
+
+.dash-search:hover {
+    transition: 0.3s;
+    padding: 10px;
+}
+
+.lb-table-wrap { 
+    background: #fff; 
+    border-radius: 12px; 
+    border: 1px solid #e0e6f0; 
+    overflow: hidden; 
+}
+
+table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    font-size: 16px; 
+}
+
+thead { 
+    background: #070A26; 
+}
+
+thead th { 
+    color: #fff; 
+    font-weight: 500; 
+    padding: 12px 16px; 
+    text-align: left; 
+}
+
+tbody tr { 
+    border-bottom: 1px solid #f0f3f8; 
+}
+
+tbody tr:last-child { 
+    border-bottom: none; 
+}
+
+tbody tr:hover { 
+    background: #f7f9fc; 
+}
+
+tbody td { 
+    padding: 11px 16px; 
+    color: #333; 
+}
+
+.lb-actions { 
+    display: flex; 
+    gap: 6px; 
+}
+
+.lb-btn {
+    width: 30px; 
+    height: 30px; 
+    border-radius: 7px; 
+    border: none; 
+    cursor: pointer; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+}
+
+.lb-btn:hover {
+    transition: 0.2s;
+    width: 31px;
+    height: 31px;
+}
+
+.lb-btn.edit { 
+    background: #e8f0fb; 
+    color: #016c11; 
+}
+
+.lb-btn.del  { 
+    background: #fdecea; 
+    color: #c0392b; 
+}
+
+.lb-footer { 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    margin-top: 14px; 
+}
+
+.lb-count { 
+    font-size: 14px; 
+    color: #888; 
+}
+
+.lb-add-btn {
+    width: 42px;
+    height: 42px;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    gap: 6px; 
+    background: #070A26; 
+    color: #fff; 
+    border: none; 
+    border-radius: 8px; 
+    padding: 9px 16px; 
+    font-size: 14px; 
+    font-weight: 500; 
+    cursor: pointer; 
+}
+
+.lb-add-btn:hover { 
+    height: 44px;
+    width: 44px;
+    background: #030740; 
+    transition: 0.4s;
+}
+
+.lb-overlay { 
+    position: fixed; 
+    top: 0; 
+    left: 0;
+    width: 100%; 
+    height: 100%; 
+    background: rgba(0,0,0,0.4); 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    z-index: 100; 
+}
+
+.lb-modal { 
+    background: #fff; 
+    border-radius: 14px; 
+    padding: 28px; 
+    width: 360px; 
+    max-height: 85vh; 
+    overflow-y: auto; 
+    background-color: #f0efef;
+}
+
+.lb-modal h3 { 
+    margin: 0 0 20px; 
+    font-size: 18px; 
+    font-weight: 500; 
+    color: #1a1a2e; 
+}
+
+.lb-input { 
+    width: 100%; 
+    padding: 9px 12px; 
+    border: 1px solid #dde1e9; 
+    border-radius: 8px; 
+    font-size:18px; 
+    margin-bottom: 10px; 
+    box-sizing: border-box; 
+    outline: none; 
+}
+
+.lb-input:focus { 
+    border-color: #070A26; 
+}
+
+.lb-error { 
+    color: #e24b4a; 
+    font-size: 18px; 
+    margin: -4px 0 10px; 
+}
+
+.lb-modal-btns { 
+    display: flex; 
+    gap: 10px; 
+    justify-content: space-between; 
+    margin-top: 8px; 
+}
+
+.lb-cancel { 
+    padding: 9px 18px; 
+    border: 1px solid #dde1e9; 
+    border-radius: 8px; 
+    background: #fff; 
+    font-size: 20px; 
+    cursor: pointer; 
+}
+
+.lb-save { 
+    padding: 9px 18px; 
+    border: none; 
+    border-radius: 8px; 
+    background: #070A26; 
+    color: #fff; 
+    font-size: 20px; 
+    font-weight: 500; 
+    cursor: pointer; 
+}
+
+.lb-save:hover { 
+    background: #030740; 
+}
+
+.lb-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+
+.lb-toolbar .lb-add-btn {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #070A26;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0;
+}
+
+.lb-toolbar .lb-add-btn:hover {
+    width: 44px;
+    height: 44px;
+    background: #030740; 
+    transition: 0.2s; 
+}
+
+.lb-modal-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.lb-tab {
+  flex: 1;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1.5px solid #dde1e9;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  color: #888;
+  font-family: 'Montserrat', sans-serif;
+  transition: all 0.15s;
+}
+
+.lb-tab.active {
+  background: #070A26;
+  color: #fff;
+  border-color: #070A26;
+}
+
+.lb-tab:hover:not(.active) {
+  background: #f0f3f8;
+  color: #1a1a2e;
+}
