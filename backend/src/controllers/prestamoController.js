@@ -41,7 +41,7 @@ class PrestamoController {
 
     static async eliminar(req, res) {
         try {
-            const resultado = await PrestamoService.eliminar(req.params.id, estado);
+            const resultado = await PrestamoService.eliminar(req.params.id);
             res.json(resultado);
         } catch (error) {
             res.status(error.status || 500).json({ message: error.message });

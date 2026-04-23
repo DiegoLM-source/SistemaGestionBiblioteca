@@ -101,7 +101,7 @@ function Prestamos() {
     if (!window.confirm("¿Eliminar este préstamo?")) return;
     if (estadoActual === "Activo") return;
     try {
-      await deletePrestamo(id);
+      await deletePrestamo(id, estadoActual);
       cargarPrestamos();
     } catch (err) {
       alert(err.response?.data?.message || "Error al eliminar");

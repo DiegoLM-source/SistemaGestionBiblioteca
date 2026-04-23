@@ -152,6 +152,9 @@ tbody td {
 }
 
 .lb-modal h3 { 
+    display: flex;
+    align-items: center;
+    justify-content: center;
     margin: 0 0 20px; 
     font-size: 18px; 
     font-weight: 500; 
@@ -175,8 +178,8 @@ tbody td {
 
 .lb-error { 
     color: #e24b4a; 
-    font-size: 18px; 
-    margin: -4px 0 10px; 
+    font-size: 14px; 
+    margin: 15px 0 20px; 
 }
 
 .lb-modal-btns { 
@@ -193,6 +196,10 @@ tbody td {
     background: #fff; 
     font-size: 20px; 
     cursor: pointer; 
+}
+
+.lb-cancel:hover {
+    background: #e8e7e7;
 }
 
 .lb-save { 
