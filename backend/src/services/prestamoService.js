@@ -75,7 +75,7 @@ class PrestamoService {
                     error.status = 404;
                     throw error;
                 }
-                if (rows[0].stock < item.cantidad) {
+                if (rows[0].stock < item.cantidad || item.cantidad <= 0) {
                     const error = new Error(
                         `Stock insuficiente para "${rows[0].titulo}". Disponible: ${rows[0].stock}`
                     );
@@ -159,26 +159,39 @@ class PrestamoService {
         }
     }
 
-    static async eliminar(id, estado) {
-        try {
-            const [resultado] = await pool.execute(
-                'DELETE FROM Prestamos WHERE id_prestamo = ? AND estado = ?', [id, estado]
-            );
-            if (resultado.affectedRows === 0) {
-                const error = new Error('Préstamo no encontrado');
-                error.status = 404;
-                throw error;
-            }
-            return { message: 'Préstamo eliminado correctamente' };
-        } catch (error) {
-            if (error.code === 'ER_ROW_IS_REFERENCED_2') {
-                const err = new Error('No se puede eliminar el préstamo porque tiene multas asociadas');
-                err.status = 400;
-                throw err;
-            }
+    static async eliminar(id) {
+    try {
+        const [prestamos] = await pool.execute(
+            'SELECT estado FROM Prestamos WHERE id_prestamo = ?', [id]
+        );
+
+        if (prestamos.length === 0) {
+            const error = new Error('Préstamo no encontrado');
+            error.status = 404;
             throw error;
         }
+
+        if (prestamos[0].estado === 'Activo') {
+            const error = new Error('No se puede eliminar un préstamo activo');
+            error.status = 400;
+            throw error;
+        }
+
+        const [resultado] = await pool.execute(
+            'DELETE FROM Prestamos WHERE id_prestamo = ?', [id]
+        );
+
+        return { message: 'Préstamo eliminado correctamente' };
+
+    } catch (error) {
+        if (error.code === 'ER_ROW_IS_REFERENCED_2') {
+            const err = new Error('No se puede eliminar el préstamo porque tiene multas asociadas');
+            err.status = 400;
+            throw err;
+        }
+        throw error;
     }
+}
 }
 
 module.exports = PrestamoService;
