@@ -25,9 +25,11 @@ function Dashboard() {
             <FaRegBookmark size={20}/>
           </div>
         </Link>
-        <div className="dash-sidebar-icon">
-          <FaDollarSign size={20} />
-        </div>
+        <Link to="/Multas">
+          <div className="dash-sidebar-icon">
+            <FaDollarSign size={20} />
+          </div>
+        </Link>
         <div className="dash-sidebar-icon">
           <FiClock size={20} />
         </div>

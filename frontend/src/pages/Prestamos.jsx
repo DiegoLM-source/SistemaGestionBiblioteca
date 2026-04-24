@@ -139,9 +139,11 @@ function Prestamos() {
           <div className="dash-sidebar-icon active">
             <FaRegBookmark size={20}/>
           </div>
-        <div className="dash-sidebar-icon">
-          <FaDollarSign size={20} />
-        </div>
+        <Link to="/Multas">
+          <div className="dash-sidebar-icon">
+            <FaDollarSign size={20} />
+          </div>
+        </Link>
         <div className="dash-sidebar-icon">
           <FiClock size={20} />
         </div>
