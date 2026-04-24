@@ -8,6 +8,9 @@ const clienteRoutes = require('./routes/clienteRoutes');
 const prestamoRoutes = require('./routes/prestamoRoutes');
 const categoriaRoutes = require('./routes/categoriaRoutes');
 const estanteRoutes   = require('./routes/estanteRoutes');
+const multaRoutes = require('./routes/multaRoutes');
+const cron = require('node-cron');
+const MultaService = require('./services/multaService');
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
@@ -26,6 +29,11 @@ app.get('/api/health', (req, res) => {
     });
 });
 
+cron.schedule('0 0 * * *', async () => {
+    console.log('[CRON] Procesando préstamos vencidos...');
+    await MultaService.procesarVencidos();
+});
+
 app.use(errorHandler);
 app.use('/api/auth', authRoutes);
 app.use('/api/libros', libroRoutes);
@@ -33,5 +41,6 @@ app.use('/api/clientes', clienteRoutes);
 app.use('/api/prestamos', prestamoRoutes);
 app.use('/api/categorias', categoriaRoutes);
 app.use('/api/estantes',   estanteRoutes);
+app.use('/api/multas', multaRoutes);
 
 module.exports = app;

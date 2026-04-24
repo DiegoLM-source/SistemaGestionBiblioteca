@@ -6,6 +6,7 @@ import Register from "../pages/Register";
 import Books from "../pages/Libros"; 
 import Clientes from "../pages/Clientes";
 import Prestamos from "../pages/Prestamos";
+import Multas from "../pages/Multas";
 
 function AppRouter() {
   return (
@@ -38,6 +39,13 @@ function AppRouter() {
         <Route path="/prestamos" element={
             <ProtectedRoute>
               <Prestamos />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route path="/multas" element={
+            <ProtectedRoute>
+              <Multas />
             </ProtectedRoute>
           }
         />
