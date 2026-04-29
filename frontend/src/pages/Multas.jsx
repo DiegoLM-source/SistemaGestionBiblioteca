@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FiSearch, FiPlus, FiTrash2, FiGrid, FiBook, FiUser, FiClock, FiLogOut, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import { FaRegBookmark, FaDollarSign } from "react-icons/fa6";
 import { getMultas, createMulta, pagarMulta, deleteMulta } from "../services/multaService";
 import { getClientes } from "../services/clienteService";
 import { getPrestamos } from "../services/prestamoServices";
 import { getLibros } from "../services/libroService";
+import { logoutUser } from "../utils/auth";
 import "../styles/dashboard.css";
 import "../styles/multas.css";
 
@@ -16,6 +17,7 @@ const formVacio = {
 };
 
 function Multas() {
+  const navigate = useNavigate();
   const [multas, setMultas] = useState([]);
   const [clientes, setClientes] = useState([]);
   const [prestamos, setPrestamos] = useState([]);
@@ -94,6 +96,10 @@ function Multas() {
     }
   };
 
+  const handleLogout = () => {
+    logoutUser(navigate);
+  };
+
   return (
     <div className="dash-wrap">
       <aside className="dash-sidebar">
@@ -120,11 +126,13 @@ function Multas() {
                 <div className="dash-sidebar-icon active">
                   <FaDollarSign size={20} />
                 </div>
-              <div className="dash-sidebar-icon">
-                <FiClock size={20} />
-              </div>
+              <Link to="/reservas">
+                <div className="dash-sidebar-icon">
+                  <FiClock size={20} />
+                </div>
+              </Link>
               <div className="sidebar-spacer" />
-              <div className="dash-sidebar-icon">
+              <div className="dash-sidebar-icon" onClick={handleLogout} title="Cerrar sesión" style={{ cursor: "pointer" }}>
                 <FiLogOut size={20} />
               </div>
             </aside>

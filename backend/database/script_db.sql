@@ -265,14 +265,18 @@ DROP TABLE IF EXISTS `reserva`;
 CREATE TABLE `reserva` (
   `id_reserva` int NOT NULL AUTO_INCREMENT,
   `fecha_reserva` date NOT NULL,
+  `fecha_reclamo` date DEFAULT NULL,
   `estado` varchar(20) NOT NULL,
   `fk_cliente` int NOT NULL,
   `fk_libro` int NOT NULL,
+  `fk_prestamo` int DEFAULT NULL,
   PRIMARY KEY (`id_reserva`),
   KEY `fk_reserva_cliente` (`fk_cliente`),
   KEY `fk_reserva_libro` (`fk_libro`),
+  KEY `fk_reserva_prestamo` (`fk_prestamo`),
   CONSTRAINT `fk_reserva_cliente` FOREIGN KEY (`fk_cliente`) REFERENCES `cliente` (`id_cliente`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_reserva_libro` FOREIGN KEY (`fk_libro`) REFERENCES `libro` (`id_libro`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_reserva_libro` FOREIGN KEY (`fk_libro`) REFERENCES `libro` (`id_libro`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_reserva_prestamo` FOREIGN KEY (`fk_prestamo`) REFERENCES `prestamos` (`id_prestamo`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -320,9 +324,13 @@ CREATE TABLE `usuarios` (
   `id_user` int NOT NULL AUTO_INCREMENT,
   `username` varchar(50) NOT NULL,
   `contrasena` varchar(100) NOT NULL,
+  `correo` varchar(100) DEFAULT NULL,
+  `google_id` varchar(100) DEFAULT NULL,
   `fk_rol` int NOT NULL,
   PRIMARY KEY (`id_user`),
   UNIQUE KEY `username` (`username`),
+  UNIQUE KEY `uq_usuarios_correo` (`correo`),
+  UNIQUE KEY `uq_usuarios_google_id` (`google_id`),
   KEY `fk_usuario_rol` (`fk_rol`),
   CONSTRAINT `fk_usuario_rol` FOREIGN KEY (`fk_rol`) REFERENCES `roles` (`id_rol`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -334,7 +342,7 @@ CREATE TABLE `usuarios` (
 
 LOCK TABLES `usuarios` WRITE;
 /*!40000 ALTER TABLE `usuarios` DISABLE KEYS */;
-INSERT INTO `usuarios` VALUES (7,'Diego','$2b$10$ynvyUSoki0oS51RXerDoUOLr9QWY1SttP9CVvwJKNm4zApgB4/vHq',1),(8,'JuanEsteban','$2b$10$mpg1QIyqTps5SKhAxSCUYumKKQztfw8TykcVzGMjcRnbRWyP6JtKW',1);
+INSERT INTO `usuarios` VALUES (7,'Diego','$2b$10$ynvyUSoki0oS51RXerDoUOLr9QWY1SttP9CVvwJKNm4zApgB4/vHq',NULL,NULL,1),(8,'JuanEsteban','$2b$10$mpg1QIyqTps5SKhAxSCUYumKKQztfw8TykcVzGMjcRnbRWyP6JtKW',NULL,NULL,1);
 /*!40000 ALTER TABLE `usuarios` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

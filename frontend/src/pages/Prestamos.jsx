@@ -1,16 +1,20 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FiSearch, FiPlus, FiTrash2, FiGrid, FiBook, FiUser, FiClock, FiLogOut, FiCheckCircle, FiXCircle, FiAlertCircle } from "react-icons/fi";
 import { FaRegBookmark, FaDollarSign } from "react-icons/fa6";
 import { getPrestamos, createPrestamo, cambiarEstado, deletePrestamo } from "../services/prestamoServices";
 import { getClientes } from "../services/clienteService";
 import { getLibros } from "../services/libroService";
+import { getCurrentDateString } from "../utils/date";
+import { logoutUser } from "../utils/auth";
 import "../styles/dashboard.css";
 import "../styles/prestamos.css";
 
 const formVacio = { fecha: "", fecha_limite: "", fk_cliente: "", libros: [] };
 
 function Prestamos() {
+  const navigate = useNavigate();
+  const hoy = getCurrentDateString();
   const [prestamos, setPrestamos] = useState([]);
   const [clientes, setClientes] = useState([]);
   const [libros, setLibros] = useState([]);
@@ -75,6 +79,14 @@ function Prestamos() {
       setError("Todos los campos son obligatorios y debes seleccionar al menos un libro");
       return;
     }
+    if (form.fecha_limite < hoy) {
+      setError("La fecha de devolución no puede ser anterior a hoy");
+      return;
+    }
+    if (form.fecha_limite < form.fecha) {
+      setError("La fecha de devolución no puede ser anterior a la fecha del préstamo");
+      return;
+    }
     try {
       const token = localStorage.getItem("token");
       const payload = JSON.parse(atob(token.split(".")[1]));
@@ -108,6 +120,10 @@ function Prestamos() {
     }
   };
 
+  const handleLogout = () => {
+    logoutUser(navigate);
+  };
+
   const estadoBadge = (estado) => {
     const clases = { Activo: "badge-activo", Devuelto: "badge-devuelto", Vencido: "badge-vencido" };
     return <span className={`pr-badge ${clases[estado] || ""}`}>{estado}</span>;
@@ -139,16 +155,18 @@ function Prestamos() {
           <div className="dash-sidebar-icon active">
             <FaRegBookmark size={20}/>
           </div>
-        <Link to="/Multas">
+        <Link to="/multas">
           <div className="dash-sidebar-icon">
             <FaDollarSign size={20} />
           </div>
         </Link>
-        <div className="dash-sidebar-icon">
-          <FiClock size={20} />
-        </div>
+        <Link to="/reservas">
+          <div className="dash-sidebar-icon">
+            <FiClock size={20} />
+          </div>
+        </Link>
         <div className="sidebar-spacer" />
-        <div className="dash-sidebar-icon">
+        <div className="dash-sidebar-icon" onClick={handleLogout} title="Cerrar sesión" style={{ cursor: "pointer" }}>
           <FiLogOut size={20} />
         </div>
       </aside>
@@ -255,9 +273,11 @@ function Prestamos() {
             <h3>Nuevo préstamo</h3>
             <label className="pr-form-label">Fecha préstamo</label>
             <input className="lb-input" type="date"
+              min={hoy}
               value={form.fecha} onChange={e => setForm({ ...form, fecha: e.target.value })} />
             <label className="pr-form-label">Fecha límite</label>
             <input className="lb-input" type="date"
+              min={form.fecha || hoy}
               value={form.fecha_limite} onChange={e => setForm({ ...form, fecha_limite: e.target.value })} />
             <label className="pr-form-label">Cliente</label>
             <select className="lb-input"

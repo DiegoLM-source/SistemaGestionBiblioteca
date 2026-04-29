@@ -1,4 +1,9 @@
 const pool = require('../config/db');
+const {
+    normalizeText,
+    isPositiveInteger,
+    createValidationError
+} = require('../utils/validators');
 
 class MultaService {
 
@@ -42,15 +47,69 @@ class MultaService {
 }
 
 static async crearOAgregarDetalle(fk_cliente, tipo, monto, descripcion = null, fecha = null, fk_prestamo = null, fk_libro = null) {
+    const clienteId = Number(fk_cliente);
+    const montoNumero = Number(monto);
+    const tipoNormalizado = normalizeText(tipo).toLowerCase();
+    const descripcionNormalizada = normalizeText(descripcion) || null;
+    const prestamoId = fk_prestamo ? Number(fk_prestamo) : null;
+    const libroId = fk_libro ? Number(fk_libro) : null;
+
+    if (!isPositiveInteger(clienteId)) {
+        throw createValidationError('El cliente seleccionado no es válido');
+    }
+
+    if (!['retraso', 'daño'].includes(tipoNormalizado)) {
+        throw createValidationError('El tipo de multa no es válido');
+    }
+
+    if (!isPositiveInteger(montoNumero)) {
+        throw createValidationError('El monto debe ser un número entero mayor a 0');
+    }
+
     const conn = await pool.getConnection();
     try {
         await conn.beginTransaction();
 
         const fechaHoy = fecha || new Date().toISOString().slice(0, 10);
 
+        const [clientes] = await conn.execute(
+            'SELECT id_cliente FROM cliente WHERE id_cliente = ?',
+            [clienteId]
+        );
+
+        if (clientes.length === 0) {
+            throw createValidationError('Cliente no encontrado', 404);
+        }
+
+        if (prestamoId) {
+            const [prestamos] = await conn.execute(
+                'SELECT id_prestamo, fk_cliente FROM prestamos WHERE id_prestamo = ?',
+                [prestamoId]
+            );
+
+            if (prestamos.length === 0) {
+                throw createValidationError('Préstamo no encontrado', 404);
+            }
+
+            if (Number(prestamos[0].fk_cliente) !== clienteId) {
+                throw createValidationError('El préstamo no pertenece al cliente seleccionado');
+            }
+        }
+
+        if (libroId) {
+            const [libros] = await conn.execute(
+                'SELECT id_libro FROM libro WHERE id_libro = ?',
+                [libroId]
+            );
+
+            if (libros.length === 0) {
+                throw createValidationError('Libro no encontrado', 404);
+            }
+        }
+
         const [existentes] = await conn.execute(
             'SELECT id_multa FROM Multa WHERE fk_cliente = ? AND estado = false',
-            [fk_cliente]
+            [clienteId]
         );
 
         let id_multa;
@@ -59,7 +118,7 @@ static async crearOAgregarDetalle(fk_cliente, tipo, monto, descripcion = null, f
         } else {
             const [resultado] = await conn.execute(
                 'INSERT INTO Multa (fecha_multa, estado, total, fk_cliente) VALUES (?, false, 0, ?)',
-                [fechaHoy, fk_cliente]
+                [fechaHoy, clienteId]
             );
             id_multa = resultado.insertId;
         }
@@ -67,7 +126,7 @@ static async crearOAgregarDetalle(fk_cliente, tipo, monto, descripcion = null, f
         await conn.execute(
             `INSERT INTO DetalleMulta (fk_multa, tipo, descripcion, monto, fecha, fk_prestamo, fk_libro) 
              VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            [id_multa, tipo, descripcion, monto, fechaHoy, fk_prestamo, fk_libro]
+            [id_multa, tipoNormalizado, descripcionNormalizada, montoNumero, fechaHoy, prestamoId, libroId]
         );
 
         await conn.execute(

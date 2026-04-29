@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FiSearch, FiEdit2, FiTrash2, FiPlus, FiBook, FiUser, FiClock, FiLogOut, FiGrid } from "react-icons/fi";
 import { FaRegBookmark, FaDollarSign } from "react-icons/fa6";
 import { getLibros, createLibro, updateLibro, deleteLibro } from "../services/libroService";
 import { getCategorias, createCategoria } from "../services/categoriaService";
 import { getEstantes, createEstante } from "../services/estanteService";
+import { logoutUser } from "../utils/auth";
 import "../styles/dashboard.css";
 import "../styles/libros.css";
 
@@ -13,6 +14,7 @@ const formVacioCategoria = { nombre: "" };
 const formVacioEstante   = { descripcion: "", ubicacion: "" };
 
 function Libros() {
+  const navigate = useNavigate();
   const [libros, setLibros]           = useState([]);
   const [categorias, setCategorias]   = useState([]);
   const [estantes, setEstantes]       = useState([]);
@@ -104,6 +106,10 @@ function Libros() {
     }
   };
 
+  const handleLogout = () => {
+    logoutUser(navigate);
+  };
+
   return (
     <div className="dash-wrap">
       <aside className="dash-sidebar">
@@ -125,16 +131,18 @@ function Libros() {
             <FaRegBookmark size={20} />
           </div>
         </Link>
-        <Link to="/Multas">
+        <Link to="/multas">
           <div className="dash-sidebar-icon">
             <FaDollarSign size={20} />
           </div>
         </Link>
-        <div className="dash-sidebar-icon">
-          <FiClock size={20} />
-        </div>
+        <Link to="/reservas">
+          <div className="dash-sidebar-icon">
+            <FiClock size={20} />
+          </div>
+        </Link>
         <div className="sidebar-spacer" />
-        <div className="dash-sidebar-icon">
+        <div className="dash-sidebar-icon" onClick={handleLogout} title="Cerrar sesión" style={{ cursor: "pointer" }}>
           <FiLogOut size={20} />
         </div>
       </aside>
