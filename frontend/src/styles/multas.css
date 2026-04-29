@@ -179,20 +179,9 @@
   border: none; font-size: 12px; font-weight: 500;
   cursor: pointer; font-family: 'Montserrat', sans-serif;
 }
-.mt-pagar-btn.activa        { 
-  background: #070A26; 
-  color: #fff; 
-}
-
-.mt-pagar-btn.activa:hover  { 
-  background: #030740;
-}
-
-.mt-pagar-btn.pagada        { 
-  background: #e6f4ea; 
-  color: #2e7d32; 
-  cursor: default; 
-}
+.mt-pagar-btn.activa        { background: #070A26; color: #fff; }
+.mt-pagar-btn.activa:hover  { background: #030740; }
+.mt-pagar-btn.pagada        { background: #e6f4ea; color: #2e7d32; cursor: default; }
 
 .mt-del-btn {
   width: 32px; height: 32px;
@@ -201,23 +190,3 @@
   cursor: pointer; display: flex;
   align-items: center; justify-content: center;
 }
-
-.mt-card {
-  position: relative;
-  margin-top: 24px; /* espacio para la etiqueta */
-}
-
-.mt-card-tag {
-  position: absolute;
-  top: -27px;
-  left: 16px;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 6px 16px;
-  border-radius: 6px 6px 0 0;
-  border-color: #000;
-}
-
-.mt-card-tag.tag-pendiente { background: #e65100; }
-.mt-card-tag.tag-pagada    { background: #2e7d32; }

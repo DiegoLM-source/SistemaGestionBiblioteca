@@ -166,14 +166,14 @@ function Multas() {
           <div className="mt-grid">
             {multasFiltradas.map(m => (
               <div key={m.id_multa} className={`mt-card ${m.estado ? "pagada" : "pendiente"}`}>
-                <div className={`mt-card-tag ${m.estado ? "tag-pagada" : "tag-pendiente"}`}>
-                  #{m.id_multa}
-                </div>
+
                 <div className="mt-card-header">
-                <span className={`mt-badge ${m.estado ? "badge-pagada" : "badge-pendiente"}`}>
-                  {m.estado ? "Pagada" : "Pendiente"}
-                </span>
-              </div>
+                  <span className="mt-card-num">Multa #{m.id_multa}</span>
+                  <span className={`mt-badge ${m.estado ? "badge-pagada" : "badge-pendiente"}`}>
+                    {m.estado ? "Pagada" : "Pendiente"}
+                  </span>
+                </div>
+
                 <div className="mt-card-body">
                   <div className="mt-field-row">
                     <div className="mt-field"><span className="mt-label">Cliente</span><span>{m.cliente_nombre}</span></div>
@@ -187,24 +187,19 @@ function Multas() {
                     </div>
                   </div>
 
-                  {/* Barra de progreso */}
                   <div className="mt-progress-wrap">
                     <div className="mt-progress-labels">
                       <span>{m.estado ? "Pagado" : "Pendiente"}</span>
                       <span>${m.estado ? m.total.toLocaleString() : "0"} / ${m.total.toLocaleString()}</span>
                     </div>
                     <div className="mt-progress-bar">
-                      <div
-                        className="mt-progress-fill"
-                        style={{
-                          width: m.estado ? "100%" : "0%",
-                          background: m.estado ? "#2e7d32" : "#e65100"
-                        }}
-                      />
+                      <div className="mt-progress-fill" style={{
+                        width: m.estado ? "100%" : "0%",
+                        background: m.estado ? "#2e7d32" : "#e65100"
+                      }} />
                     </div>
                   </div>
 
-                  {/* Detalles */}
                   {m.detalles?.filter(d => d.id_detalle).length > 0 && (
                     <div className="mt-detalles">
                       <span className="mt-label">Detalles</span>
@@ -213,7 +208,7 @@ function Multas() {
                           <span className={`mt-tipo ${d.tipo}`}>{d.tipo}</span>
                           <div className="mt-detalle-info">
                             <span className="mt-detalle-desc">{d.descripcion}</span>
-                            {d.libro && <span className="mt-detalle-libro">{d.libro}</span>}
+                            {d.libro && <span className="mt-detalle-libro">📖 {d.libro}</span>}
                           </div>
                           <span className="mt-detalle-monto">${d.monto?.toLocaleString()}</span>
                         </div>
@@ -221,6 +216,8 @@ function Multas() {
                     </div>
                   )}
                 </div>
+
+                {/* Footer */}
                 <div className="mt-card-footer">
                   <button
                     className={`mt-pagar-btn ${m.estado ? "pagada" : "activa"}`}
@@ -233,6 +230,7 @@ function Multas() {
                     <FiTrash2 size={14} />
                   </button>
                 </div>
+
               </div>
             ))}
           </div>
