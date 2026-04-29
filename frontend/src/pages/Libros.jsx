@@ -141,7 +141,10 @@ function Libros() {
 
       <div className="dash-main">
         <div className="lb-header">
-          <span className="lb-title">Libros</span>
+          <div>
+            <span className="lb-title">Libros</span>
+            <p className="lb-subtitle">{librosFiltrados.length} títulos registrados</p>
+          </div>
           <div className="dash-search">
             <FiSearch size={15} color="#aaa" />
             <input type="text" placeholder="Buscar..."
@@ -164,23 +167,37 @@ function Libros() {
               </tr>
             </thead>
             <tbody>
-              {librosFiltrados.map((l, i) => (
-                <tr key={l.id_libro}>
-                  <td>{l.isbn}</td>
-                  <td><strong>{l.titulo}</strong></td>
-                  <td>{l.autor}</td>
-                  <td>{l.editorial}</td>
-                  <td>{l.categoria}</td>
-                  <td>{l.estante}</td>
-                  <td>{l.stock}</td>
-                  <td>
-                    <div className="lb-actions">
-                      <button className="lb-btn edit" onClick={() => abrirModal("libro", l)}><FiEdit2 size={13} /></button>
-                      <button className="lb-btn del" onClick={() => eliminar(l.id_libro)}><FiTrash2 size={13} /></button>
+              {librosFiltrados.length === 0 ? (
+                <tr>
+                  <td colSpan={8}>
+                    <div className="lb-empty">
+                      <FiBook size={32} className="lb-empty-icon" />
+                      <span>No hay libros registrados</span>
+                      <button className="lb-empty-cta" onClick={() => abrirModal("libro")}>
+                        + Agregar primer libro
+                      </button>
                     </div>
                   </td>
                 </tr>
-              ))}
+              ) : (
+                librosFiltrados.map(l => (
+                  <tr key={l.id_libro}>
+                    <td>{l.isbn}</td>
+                    <td><strong>{l.titulo}</strong></td>
+                    <td>{l.autor}</td>
+                    <td>{l.editorial}</td>
+                    <td>{l.categoria}</td>
+                    <td>{l.estante}</td>
+                    <td>{l.stock}</td>
+                    <td>
+                      <div className="lb-actions">
+                        <button className="lb-btn edit" onClick={() => abrirModal("libro", l)}><FiEdit2 size={13} /></button>
+                        <button className="lb-btn del" onClick={() => eliminar(l.id_libro)}><FiTrash2 size={13} /></button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

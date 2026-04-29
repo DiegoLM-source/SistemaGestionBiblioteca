@@ -192,35 +192,50 @@ function Prestamos() {
         </div>
 
         <div className="pr-grid-wrap">
-          <div className="pr-grid">
-            {prestamosPagina.map(p => (
-              <div key={p.id_prestamo} className="pr-card">
-                <div className="pr-card-header">
-                  <span className="pr-card-num">Préstamo #{p.id_prestamo}</span>
-                  {estadoBadge(p.estado)}
+          {prestamosFiltrados.length === 0 ? (
+            <div className="pr-empty">
+              <FaRegBookmark size={32} className="pr-empty-icon" />
+              <span>No hay préstamos
+                {filtro !== "todos" ? ` con estado "${filtro}"` : " registrados"}
+              </span>
+              {filtro === "todos" && (
+                <button className="lb-empty-cta"
+                  onClick={() => { setForm(formVacio); setError(""); setModal(true); }}>
+                  + Crear primer préstamo
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="pr-grid">
+              {prestamosPagina.map(p => (
+                <div key={p.id_prestamo} className={`pr-card ${p.estado?.toLowerCase()}`}>
+                  <div className="pr-card-header">
+                    <span className="pr-card-num">Préstamo #{p.id_prestamo}</span>
+                    {estadoBadge(p.estado)}
+                  </div>
+                  <div className="pr-card-body">
+                    <div className="pr-field"><span className="pr-label">Fecha</span><span>{p.fecha?.slice(0,10)}</span></div>
+                    <div className="pr-field"><span className="pr-label">Fecha límite</span><span>{p.fecha_limite?.slice(0,10)}</span></div>
+                    <div className="pr-field"><span className="pr-label">Cliente</span><span>{p.cliente_nombre}</span></div>
+                    <div className="pr-field"><span className="pr-label">Teléfono</span><span>{p.cliente_telefono}</span></div>
+                    <div className="pr-field"><span className="pr-label">Libro(s)</span><span className="pr-libros">{p.libros}</span></div>
+                  </div>
+                  <div className="pr-card-footer">
+                    <button
+                      className={`pr-estado-btn ${p.estado === "Devuelto" ? "devuelto" : "activo"}`}
+                      onClick={() => handleEstado(p.id_prestamo, p.estado)}
+                      disabled={p.estado === "Devuelto"}
+                    >
+                      {p.estado === "Devuelto" ? "✓ Devuelto" : "Marcar como devuelto"}
+                    </button>
+                    <button className="pr-del-btn" onClick={() => eliminar(p.id_prestamo)}>
+                      <FiTrash2 size={14} />
+                    </button>
+                  </div>
                 </div>
-                <div className="pr-card-body">
-                  <div className="pr-field"><span className="pr-label">Fecha</span><span>{p.fecha?.slice(0,10)}</span></div>
-                  <div className="pr-field"><span className="pr-label">Fecha límite</span><span>{p.fecha_limite?.slice(0,10)}</span></div>
-                  <div className="pr-field"><span className="pr-label">Cliente</span><span>{p.cliente_nombre}</span></div>
-                  <div className="pr-field"><span className="pr-label">Teléfono</span><span>{p.cliente_telefono}</span></div>
-                  <div className="pr-field"><span className="pr-label">Libro(s)</span><span className="pr-libros">{p.libros}</span></div>
-                </div>
-                <div className="pr-card-footer">
-                  <button
-                    className={`pr-estado-btn ${p.estado === "Devuelto" ? "devuelto" : "activo"}`}
-                    onClick={() => handleEstado(p.id_prestamo, p.estado)}
-                    disabled={p.estado === "Devuelto"}
-                  >
-                    {p.estado === "Devuelto" ? "✓ Devuelto" : "Marcar como devuelto"}
-                  </button>
-                  <button className="pr-del-btn" onClick={() => eliminar(p.id_prestamo)}>
-                    <FiTrash2 size={14} />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {totalPaginas > 1 && (
