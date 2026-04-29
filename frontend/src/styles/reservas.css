@@ -1,0 +1,260 @@
+@import "./libros.css";
+
+.rs-toolbar,
+.rs-filtros {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rs-toolbar {
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.rs-filtros-label { font-size: 13px; color: #8a7666; margin-right: 4px; }
+
+.rs-filtro-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 1.5px solid transparent;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: "Montserrat", sans-serif;
+}
+
+.filtro-reservado {
+  background: #fff3e0;
+  color: #b26a00;
+  border-color: #efd09d;
+}
+
+.filtro-reclamado {
+  background: #e8f0fb;
+  color: #050a59;
+  border-color: #a8c0f0;
+}
+
+.filtro-cancelado {
+  background: #fdecea;
+  color: #c0392b;
+  border-color: #f0a8a8;
+}
+
+.filtro-reservado.selected {
+  background: #b26a00;
+  color: #fff;
+  border-color: #b26a00;
+}
+
+.filtro-reclamado.selected {
+  background: #050a59;
+  color: #fff;
+  border-color: #050a59;
+}
+
+.filtro-cancelado.selected {
+  background: #c0392b;
+  color: #fff;
+  border-color: #c0392b;
+}
+
+.rs-grid-wrap {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.rs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 16px;
+  padding-bottom: 8px;
+}
+
+.rs-card.reservado {
+  border-top: 4px solid #d49a2f;
+}
+
+.rs-card.reclamado {
+  border-top: 4px solid #050a59;
+}
+
+.rs-card.cancelado {
+  border-top: 4px solid #c0392b;
+}
+
+.rs-card-header,
+.rs-card-footer {
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+}
+
+.rs-card-header {
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(93, 69, 44, 0.08);
+}
+
+.rs-card-footer {
+  gap: 8px;
+  border-top: 1px solid #f0f3f8;
+}
+
+.rs-card-num {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2e1d13;
+}
+
+.rs-card-body {
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.rs-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.rs-label {
+  font-size: 10px;
+  color: #8a7666;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.rs-field span:last-child {
+  font-size: 12px;
+  color: #5d4b39;
+  text-align: right;
+}
+
+.rs-libro {
+  color: #6b4a28;
+  font-weight: 600;
+}
+
+.rs-badge {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.badge-reservado {
+  background: #fff3e0;
+  color: #b26a00;
+}
+
+.badge-reclamado {
+  background: #e8f0fb;
+  color: #050a59;
+}
+
+.badge-cancelado {
+  background: #fdecea;
+  color: #c0392b;
+}
+
+.rs-action-btn,
+.rs-cancel-btn {
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: "Montserrat", sans-serif;
+}
+
+.rs-action-btn {
+  flex: 1;
+  padding: 9px 10px;
+}
+
+.rs-action-btn.claim {
+  background: linear-gradient(135deg, #6f4a2d 0%, #b07a3f 100%);
+  color: #fff;
+}
+
+.rs-action-btn.done {
+  background: rgba(198, 156, 82, 0.12);
+  color: #7a562f;
+  cursor: default;
+}
+
+.rs-cancel-btn {
+  padding: 9px 12px;
+  background: #fdecea;
+  color: #c0392b;
+}
+
+.rs-cancel-btn:disabled,
+.rs-action-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.rs-empty {
+  min-height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(255, 253, 249, 0.88);
+  border: 1px dashed rgba(106, 76, 46, 0.18);
+  border-radius: 16px;
+  color: #8f7a69;
+}
+
+.rs-empty-icon {
+  color: #7b6047;
+}
+
+.rs-pagination {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  margin-top: 12px;
+  flex-shrink: 0;
+}
+
+.rs-pagination button {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid #e0e6f0;
+  background: #fff;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.rs-pagination button.active {
+  background: #3b291d;
+  color: #fff;
+  border-color: #3b291d;
+}
+
+@media (max-width: 900px) {
+  .rs-topbar,
+  .rs-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .rs-filtros {
+    flex-wrap: wrap;
+  }
+}

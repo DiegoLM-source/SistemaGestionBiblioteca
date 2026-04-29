@@ -17,6 +17,9 @@ class MultaController {
         if (!fk_cliente || !tipo || !monto) {
             return res.status(400).json({ message: 'Cliente, tipo y monto son obligatorios' });
         }
+        if (Number(monto) <= 0) {
+            return res.status(400).json({ message: 'El monto debe ser mayor a 0' });
+        }
         const resultado = await MultaService.crearOAgregarDetalle(
             fk_cliente, tipo, monto, descripcion,
             null, fk_prestamo || null, fk_libro || null

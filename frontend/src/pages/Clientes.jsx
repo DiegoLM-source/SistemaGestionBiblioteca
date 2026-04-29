@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FiSearch, FiEdit2, FiTrash2, FiPlus, FiBook, FiUser, FiClock, FiPlay, FiLogOut, FiGrid } from "react-icons/fi";
 import { FaRegBookmark, FaDollarSign } from "react-icons/fa6";
 import { getClientes, createCliente, updateCliente, deleteCliente } from "../services/clienteService";
+import { logoutUser } from "../utils/auth";
 import "../styles/dashboard.css";
 import "../styles/clientes.css";
 
 const formVacio = { nombre: "", correo: "", telefono: "" };
 
 function Clientes() {
+  const navigate = useNavigate();
   const [clientes, setClientes]   = useState([]);
   const [busqueda, setBusqueda]   = useState("");
   const [modal, setModal]         = useState(false);
@@ -68,6 +70,10 @@ function Clientes() {
     }
   };
 
+  const handleLogout = () => {
+    logoutUser(navigate);
+  };
+
   return (
     <div className="dash-wrap">
 
@@ -90,16 +96,18 @@ function Clientes() {
             <FaRegBookmark size={20}/>
           </div>
         </Link>
-        <Link to="/Multas">
+        <Link to="/multas">
           <div className="dash-sidebar-icon">
             <FaDollarSign size={20} />
           </div>
         </Link>
-        <div className="dash-sidebar-icon">
-          <FiClock size={20} />
-        </div>
+        <Link to="/reservas">
+          <div className="dash-sidebar-icon">
+            <FiClock size={20} />
+          </div>
+        </Link>
         <div className="sidebar-spacer" />
-        <div className="dash-sidebar-icon">
+        <div className="dash-sidebar-icon" onClick={handleLogout} title="Cerrar sesión" style={{ cursor: "pointer" }}>
             <FiLogOut size={20} />
         </div>
       </aside>

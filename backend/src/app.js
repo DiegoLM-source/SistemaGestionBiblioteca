@@ -6,6 +6,7 @@ const authRoutes = require('./routes/authRoutes');
 const libroRoutes = require('./routes/libroRoutes');
 const clienteRoutes = require('./routes/clienteRoutes');
 const prestamoRoutes = require('./routes/prestamoRoutes');
+const reservaRoutes = require('./routes/reservaRoutes');
 const categoriaRoutes = require('./routes/categoriaRoutes');
 const estanteRoutes   = require('./routes/estanteRoutes');
 const multaRoutes = require('./routes/multaRoutes');
@@ -14,6 +15,11 @@ const MultaService = require('./services/multaService');
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
+
+const procesarPrestamosVencidos = async () => {
+    console.log('[CRON] Procesando préstamos vencidos...');
+    await MultaService.procesarVencidos();
+};
 
 app.use(helmet());
 app.use(cors());
@@ -29,9 +35,14 @@ app.get('/api/health', (req, res) => {
     });
 });
 
-cron.schedule('0 0 * * *', async () => {
-    console.log('[CRON] Procesando préstamos vencidos...');
-    await MultaService.procesarVencidos();
+setImmediate(() => {
+    procesarPrestamosVencidos().catch((error) => {
+        console.error('[CRON] Error inicial procesando vencidos:', error.message);
+    });
+});
+
+cron.schedule('0 * * * *', async () => {
+    await procesarPrestamosVencidos();
 });
 
 app.use(errorHandler);
@@ -39,6 +50,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/libros', libroRoutes);
 app.use('/api/clientes', clienteRoutes);
 app.use('/api/prestamos', prestamoRoutes);
+app.use('/api/reservas', reservaRoutes);
 app.use('/api/categorias', categoriaRoutes);
 app.use('/api/estantes',   estanteRoutes);
 app.use('/api/multas', multaRoutes);

@@ -1,5 +1,6 @@
 const AuthService = require('../services/authService');
 
+
 class AuthController {
 
     static async register(req, res) {
@@ -37,6 +38,7 @@ class AuthController {
             });
         }
     }
+
 }
 
 module.exports = AuthController;

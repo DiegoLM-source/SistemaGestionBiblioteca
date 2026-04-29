@@ -1,6 +1,53 @@
 const pool = require('../config/db');
+const {
+    isValidDate,
+    isPositiveInteger,
+    getCurrentDateString,
+    createValidationError
+} = require('../utils/validators');
 
 class PrestamoService {
+    static validarCreacion(datos) {
+        const { fecha, fecha_limite, fk_user, fk_cliente, libros } = datos;
+
+        if (!isValidDate(fecha) || !isValidDate(fecha_limite)) {
+            throw createValidationError('Las fechas del préstamo no son válidas');
+        }
+
+        const hoy = getCurrentDateString();
+
+        if (fecha_limite < hoy) {
+            throw createValidationError('La fecha de devolución no puede ser anterior a la fecha actual');
+        }
+
+        if (new Date(fecha_limite) < new Date(fecha)) {
+            throw createValidationError('La fecha límite no puede ser anterior a la fecha del préstamo');
+        }
+
+        if (!isPositiveInteger(fk_user) || !isPositiveInteger(fk_cliente)) {
+            throw createValidationError('Usuario y cliente son obligatorios');
+        }
+
+        if (!Array.isArray(libros) || libros.length === 0) {
+            throw createValidationError('Debes seleccionar al menos un libro');
+        }
+
+        const ids = new Set();
+        for (const item of libros) {
+            const idLibro = Number(item.id_libro);
+            const cantidad = Number(item.cantidad);
+
+            if (!isPositiveInteger(idLibro) || !isPositiveInteger(cantidad)) {
+                throw createValidationError('Cada libro debe tener un id válido y una cantidad mayor a 0');
+            }
+
+            if (ids.has(idLibro)) {
+                throw createValidationError('No puedes repetir el mismo libro en un préstamo');
+            }
+
+            ids.add(idLibro);
+        }
+    }
 
     static async obtenerTodos() {
         const [prestamos] = await pool.execute(`
@@ -48,6 +95,8 @@ class PrestamoService {
     }
 
     static async crear(datos) {
+        this.validarCreacion(datos);
+
         const { fecha, fecha_limite, fk_user, fk_cliente, libros } = datos;
 
         const conn = await pool.getConnection();
@@ -115,6 +164,10 @@ class PrestamoService {
     }
 
     static async cambiarEstado(id, estado) {
+        if (!['Devuelto'].includes(estado)) {
+            throw createValidationError('El estado enviado no es válido');
+        }
+
         const conn = await pool.getConnection();
         try {
             await conn.beginTransaction();
