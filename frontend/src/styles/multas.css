@@ -64,20 +64,8 @@
   flex-direction: column;
 }
 
-.mt-card.pendiente { 
-  border-left: 4px solid #e65100;
-  box-shadow: 8px 8px 8px rgba(230, 81, 0, 0.15);
-}
-
-.mt-card.pendiente:hover { 
-  border-left-color: #e65100; 
- 
-}
-
-.mt-card.pagada    { 
-  border-left: 4px solid #2e7d32; 
-  box-shadow: 8px 8px 8px rgba(0, 230, 4, 0.15);
-}
+.mt-card.pendiente { border-left: 4px solid #e65100; }
+.mt-card.pagada    { border-left: 4px solid #2e7d32; }
 
 .mt-card-header {
   padding: 12px 16px;
@@ -93,18 +81,59 @@
 .badge-pendiente { background: #fff8e1; color: #e65100; }
 .badge-pagada    { background: #e6f4ea; color: #2e7d32; }
 
-.mt-card-body { padding: 14px 16px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
-.mt-field { display: flex; flex-direction: column; gap: 1px; }
-.mt-label { font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; }
-.mt-field span:last-child { font-size: 13px; color: #333; }
-.mt-total { font-size: 16px !important; font-weight: 600 !important; color: #070A26 !important; }
+.mt-card-body {
+  padding: 14px 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
+.mt-field-row {
+  display: flex;
+  gap: 16px;
+}
+
+.mt-field-row .mt-field { flex: 1; }
+
+.mt-field { display: flex; flex-direction: column; gap: 2px; }
+.mt-label { font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; }
+.mt-field span:last-child { font-size: 13px; color: #333; font-weight: 500; }
+.mt-total { font-size: 18px !important; font-weight: 600 !important; color: #070A26 !important; }
+
+/* Barra de progreso */
+.mt-progress-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mt-progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #aaa;
+}
+
+.mt-progress-bar {
+  height: 5px;
+  background: #f0f3f8;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.mt-progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+/* Detalles */
 .mt-detalles {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin-top: 4px;
-  padding-top: 8px;
+  padding-top: 10px;
   border-top: 1px solid #f0f3f8;
 }
 
@@ -126,7 +155,15 @@
 .mt-tipo.retraso { background: #fff8e1; color: #e65100; }
 .mt-tipo.daño    { background: #fdecea; color: #c0392b; }
 
-.mt-detalle-desc { flex: 1; color: #555; }
+.mt-detalle-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mt-detalle-desc { color: #555; }
+.mt-detalle-libro { font-size: 11px; color: #888; }
 .mt-detalle-monto { font-weight: 600; color: #333; white-space: nowrap; }
 
 .mt-card-footer {
@@ -142,9 +179,20 @@
   border: none; font-size: 12px; font-weight: 500;
   cursor: pointer; font-family: 'Montserrat', sans-serif;
 }
-.mt-pagar-btn.activa   { background: #070A26; color: #fff; }
-.mt-pagar-btn.activa:hover { background: #030740; }
-.mt-pagar-btn.pagada   { background: #e6f4ea; color: #2e7d32; cursor: default; }
+.mt-pagar-btn.activa        { 
+  background: #070A26; 
+  color: #fff; 
+}
+
+.mt-pagar-btn.activa:hover  { 
+  background: #030740;
+}
+
+.mt-pagar-btn.pagada        { 
+  background: #e6f4ea; 
+  color: #2e7d32; 
+  cursor: default; 
+}
 
 .mt-del-btn {
   width: 32px; height: 32px;
@@ -154,14 +202,22 @@
   align-items: center; justify-content: center;
 }
 
-.mt-detalle-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+.mt-card {
+  position: relative;
+  margin-top: 24px; /* espacio para la etiqueta */
 }
 
-.mt-detalle-libro {
-  font-size: 11px;
-  color: #888;
+.mt-card-tag {
+  position: absolute;
+  top: -27px;
+  left: 16px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 16px;
+  border-radius: 6px 6px 0 0;
+  border-color: #000;
 }
+
+.mt-card-tag.tag-pendiente { background: #e65100; }
+.mt-card-tag.tag-pagada    { background: #2e7d32; }

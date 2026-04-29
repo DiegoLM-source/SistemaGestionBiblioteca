@@ -106,7 +106,10 @@ function Clientes() {
 
       <div className="dash-main">
         <div className="lb-header">
-          <span className="lb-title">Clientes</span>
+          <div>
+            <span className="lb-title">Clientes</span>
+            <p className="lb-subtitle">{clientesFiltrados.length} clientes registrados</p>
+          </div>
           <div className="dash-search">
             <FiSearch size={15} color="#aaa" />
             <input type="text" placeholder="Buscar..."
@@ -131,19 +134,33 @@ function Clientes() {
               </tr>
             </thead>
             <tbody>
-              {clientesFiltrados.map((c, i) => (
-                <tr key={c.id_cliente}>
-                  <td><strong>{c.nombre}</strong></td>
-                  <td>{c.correo}</td>
-                  <td>{c.telefono}</td>
-                  <td>
-                    <div className="lb-actions">
-                      <button className="lb-btn edit" onClick={() => abrirModal(c)}><FiEdit2 size={13} /></button>
-                      <button className="lb-btn del" onClick={() => eliminar(c.id_cliente)}><FiTrash2 size={13} /></button>
+              {clientesFiltrados.length === 0 ? (
+                <tr>
+                  <td colSpan={4}>
+                    <div className="lb-empty">
+                      <FiUser size={32} className="lb-empty-icon" />
+                      <span>No hay clientes registrados</span>
+                      <button className="lb-empty-cta" onClick={() => abrirModal()}>
+                        + Agregar primer cliente
+                      </button>
                     </div>
                   </td>
                 </tr>
-              ))}
+              ) : (
+                clientesFiltrados.map(c => (
+                  <tr key={c.id_cliente}>
+                    <td><strong>{c.nombre}</strong></td>
+                    <td>{c.correo}</td>
+                    <td>{c.telefono}</td>
+                    <td>
+                      <div className="lb-actions">
+                        <button className="lb-btn edit" onClick={() => abrirModal(c)}><FiEdit2 size={13} /></button>
+                        <button className="lb-btn del" onClick={() => eliminar(c.id_cliente)}><FiTrash2 size={13} /></button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
