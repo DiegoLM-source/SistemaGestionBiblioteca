@@ -1,18 +1,18 @@
 :root {
   --shell-bg:
-    radial-gradient(circle at 12% 8%, rgba(198, 156, 82, 0.12), transparent 18%),
-    radial-gradient(circle at 88% 10%, rgba(255, 239, 209, 0.12), transparent 14%),
-    linear-gradient(180deg, #f5ede1 0%, #efe4d4 100%);
+    radial-gradient(circle at 12% 8%, rgba(38, 35, 120, 0.12), transparent 18%),
+    radial-gradient(circle at 88% 10%, rgba(209, 209, 255, 0.12), transparent 14%),
+    linear-gradient(180deg, #fdfdfd 0%, #f9fbff 100%);
   --panel-bg: rgba(255, 251, 244, 0.82);
-  --panel-border: rgba(109, 78, 49, 0.12);
+  --panel-border: rgba(49, 57, 109, 0.12);
   --panel-shadow: 0 20px 40px rgba(48, 31, 17, 0.08);
-  --ink-strong: #2e1d13;
-  --ink-mid: #715845;
-  --ink-soft: #9a8472;
-  --accent-deep: #2f2219;
+  --ink-strong: #01031c;
+  --ink-mid: #262d4c;
+  --ink-soft: #5f6691;
+  --accent-deep: #1a192f;
   --accent-warm: #916536;
   --accent-gold: #c69c52;
-  --line-soft: rgba(106, 76, 46, 0.1);
+  --line-soft: rgba(48, 46, 106, 0.1);
   --surface: rgba(255, 253, 249, 0.88);
 }
 
@@ -51,9 +51,9 @@ body {
   gap: 14px;
   padding: 20px 0 18px;
   background:
-    linear-gradient(180deg, rgba(44, 29, 20, 0.96), rgba(24, 17, 12, 0.96)),
-    linear-gradient(180deg, rgba(255, 242, 211, 0.06), transparent);
-  border-right: 1px solid rgba(255, 236, 199, 0.08);
+    linear-gradient(180deg, rgba(7, 2, 39, 0.96), rgba(2, 8, 37, 0.96)),
+    linear-gradient(180deg, rgba(0, 2, 20, 0.689), transparent);
+  border-right: 1px solid rgba(203, 199, 255, 0.08);
   box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.03);
 }
 
@@ -64,7 +64,7 @@ body {
   width: 42px;
   height: 42px;
   border-radius: 14px;
-  background: radial-gradient(circle, rgba(198, 156, 82, 0.2), transparent 70%);
+  background: radial-gradient(circle, rgba(46, 63, 193, 0.2), transparent 70%);
   filter: blur(4px);
   pointer-events: none;
 }
@@ -93,15 +93,15 @@ body {
 
 .dash-sidebar-icon:hover {
   color: #fff7ea;
-  background: rgba(255, 246, 227, 0.08);
+  background: rgba(10, 8, 72, 0.568);
   border-color: rgba(255, 236, 199, 0.08);
   transform: translateY(-1px);
 }
 
 .dash-sidebar-icon.active {
   color: #fff9f0;
-  background: linear-gradient(180deg, rgba(198, 156, 82, 0.24), rgba(198, 156, 82, 0.08));
-  border-color: rgba(219, 185, 124, 0.22);
+  background: linear-gradient(180deg, rgba(3, 10, 76, 0.837), rgba(86, 82, 198, 0.08));
+  border-color: rgba(146, 124, 219, 0.22);
   box-shadow: inset 0 1px 0 rgba(255, 251, 243, 0.12);
 }
 
@@ -132,7 +132,7 @@ body {
 
 .dash-search:hover,
 .dash-search:focus-within {
-  border-color: rgba(198, 156, 82, 0.5);
+  border-color: rgba(86, 82, 198, 0.5);
   box-shadow:
     0 0 0 4px rgba(198, 156, 82, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.85);
@@ -164,7 +164,7 @@ body {
   padding: 18px 20px;
   border-radius: 24px;
   background:
-    linear-gradient(180deg, rgba(53, 37, 26, 0.96), rgba(31, 22, 15, 0.96)),
+    linear-gradient(180deg, rgba(26, 28, 53, 0.96), rgba(15, 19, 31, 0.96)),
     linear-gradient(180deg, rgba(255, 239, 209, 0.06), transparent);
   color: #fff8ec;
   box-shadow: 0 20px 45px rgba(45, 29, 17, 0.14);

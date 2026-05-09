@@ -35,6 +35,15 @@
   padding-bottom: 8px;
 }
 
+.mt-card {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #e0e6f0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* ← esto corta el borde lateral en las esquinas */
+}
+
 .mt-card.pendiente { border-left: 4px solid #e65100; }
 .mt-card.pagada    { border-left: 4px solid #2e7d32; }
 
