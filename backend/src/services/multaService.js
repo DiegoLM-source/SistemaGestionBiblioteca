@@ -26,17 +26,17 @@ class MultaService {
                         l.titulo,
                         (
                             SELECT GROUP_CONCAT(lb.titulo SEPARATOR ', ')
-                            FROM DetallePrestamo dp
-                            JOIN Libro lb ON lb.id_libro = dp.fk_libro
+                            FROM detalleprestamo dp
+                            JOIN libro lb ON lb.id_libro = dp.fk_libro
                             WHERE dp.fk_prestamo = dm.fk_prestamo
                         )
                     )
                 )
             ) AS detalles
-        FROM Multa m
-        JOIN Cliente c ON m.fk_cliente = c.id_cliente
-        LEFT JOIN DetalleMulta dm ON dm.fk_multa = m.id_multa
-        LEFT JOIN Libro l ON l.id_libro = dm.fk_libro
+        FROM multa m
+        JOIN cliente c ON m.fk_cliente = c.id_cliente
+        LEFT JOIN detalemulta dm ON dm.fk_multa = m.id_multa
+        LEFT JOIN libro l ON l.id_libro = dm.fk_libro
         GROUP BY m.id_multa
         ORDER BY m.fecha_multa DESC
     `);

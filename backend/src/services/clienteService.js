@@ -29,7 +29,7 @@ class ClienteService {
     }
 
     static async obtenerTodos() {
-        const [clientes] = await pool.execute('SELECT * FROM Cliente');
+        const [clientes] = await pool.execute('SELECT * FROM cliente');
         return clientes;
     }
 

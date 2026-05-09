@@ -4,7 +4,7 @@ const pool = require('../config/db');
 
 router.get('/', async (req, res) => {
     try {
-        const [rows] = await pool.execute('SELECT * FROM Categorias');
+        const [rows] = await pool.execute('SELECT * FROM categorias');
         res.json(rows);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -16,7 +16,7 @@ router.post('/', async (req, res) => {
         const { nombre } = req.body;
         if (!nombre) return res.status(400).json({ message: 'El nombre es obligatorio' });
         const [resultado] = await pool.execute(
-            'INSERT INTO Categorias (nombre) VALUES (?)', [nombre]
+            'INSERT INTO categorias (nombre) VALUES (?)', [nombre]
         );
         res.status(201).json({ id_categoria: resultado.insertId, nombre });
     } catch (error) {

@@ -41,7 +41,7 @@ class LibroService {
     static async obtenerTodos() {
         const [libros] = await pool.execute(`
             SELECT l.*, c.nombre AS categoria, e.ubicacion AS estante
-            FROM Libro l
+            FROM libro l
             JOIN categorias c ON l.fk_categoria = c.id_categoria
             JOIN estante e ON l.fk_estante = e.id_estante
         `);
