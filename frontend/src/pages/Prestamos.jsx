@@ -23,14 +23,20 @@ function Prestamos() {
   const [modal, setModal] = useState(false);
   const [form, setForm] = useState(formVacio);
   const [error, setError] = useState("");
-  const [pagina, setPagina] = useState(1);
-  const porPagina = 6;
+  const [busquedaLibros, setBusquedaLibros] = useState("");
+  const [busquedaClientes, setBusquedaClientes] = useState("");
+  const [debouncedBusquedaLibros, setDebouncedBusquedaLibros] = useState("");
+  const [debouncedBusquedaClientes, setDebouncedBusquedaClientes] = useState("");
 
   useEffect(() => {
-    cargarPrestamos();
-    getClientes().then(r => setClientes(r.data));
-    getLibros().then(r => setLibros(r.data));
-  }, []);
+    const timer = setTimeout(() => setDebouncedBusquedaLibros(busquedaLibros), 300);
+    return () => clearTimeout(timer);
+  }, [busquedaLibros]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedBusquedaClientes(busquedaClientes), 300);
+    return () => clearTimeout(timer);
+  }, [busquedaClientes]);
 
   const cargarPrestamos = async () => {
     try {
@@ -51,8 +57,8 @@ function Prestamos() {
     return coincideBusqueda && coincideFiltro;
   });
 
-  const totalPaginas = Math.ceil(prestamosFiltrados.length / porPagina);
-  const prestamosPagina = prestamosFiltrados.slice((pagina - 1) * porPagina, pagina * porPagina);
+  const librosFiltrados = libros.filter(l => l.titulo.toLowerCase().includes(debouncedBusquedaLibros.toLowerCase()));
+  const clientesFiltrados = clientes.filter(c => c.nombre.toLowerCase().includes(debouncedBusquedaClientes.toLowerCase()));
 
   const toggleLibro = (id_libro) => {
     setForm(f => {
@@ -204,7 +210,7 @@ function Prestamos() {
               <FiXCircle size={14} /> Vencido
             </button>
           </div>
-          <button className="pr-add-btn" onClick={() => { setForm(formVacio); setError(""); setModal(true); }}>
+          <button className="pr-add-btn" onClick={() => { setForm(formVacio); setError(""); setBusquedaLibros(""); setBusquedaClientes(""); setModal(true); }}>
             <FiPlus size={16} />
           </button>
         </div>
@@ -218,7 +224,7 @@ function Prestamos() {
               </span>
               {filtro === "todos" && (
                 <button className="lb-empty-cta"
-                  onClick={() => { setForm(formVacio); setError(""); setModal(true); }}>
+                  onClick={() => { setForm(formVacio); setError(""); setBusquedaLibros(""); setBusquedaClientes(""); setModal(true); }}>
                   + Crear primer préstamo
                 </button>
               )}
@@ -280,16 +286,18 @@ function Prestamos() {
               min={form.fecha || hoy}
               value={form.fecha_limite} onChange={e => setForm({ ...form, fecha_limite: e.target.value })} />
             <label className="pr-form-label">Cliente</label>
+            <input type="text" placeholder="Buscar clientes..." value={busquedaClientes} onChange={e => setBusquedaClientes(e.target.value)} className="lb-input" />
             <select className="lb-input"
               value={form.fk_cliente} onChange={e => setForm({ ...form, fk_cliente: e.target.value })}>
               <option value="">Seleccionar cliente...</option>
-              {clientes.map(c => (
+              {clientesFiltrados.map(c => (
                 <option key={c.id_cliente} value={c.id_cliente}>{c.nombre}</option>
               ))}
             </select>
             <label className="pr-form-label">Libros</label>
+            <input type="text" placeholder="Buscar libros..." value={busquedaLibros} onChange={e => setBusquedaLibros(e.target.value)} className="lb-input" />
             <div className="pr-libros-check">
-            {libros.map(l => {
+            {librosFiltrados.map(l => {
                 const seleccionado = form.libros.find(x => x.id_libro === l.id_libro);
                 return (
                 <div key={l.id_libro} className="pr-check-item">
