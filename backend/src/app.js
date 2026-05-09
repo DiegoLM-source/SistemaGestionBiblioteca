@@ -16,6 +16,12 @@ const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
 
+app.get('/api', (req, res) => {
+    res.send('API funcionando');
+});
+
+module.exports = app;
+
 const procesarPrestamosVencidos = async () => {
     console.log('[CRON] Procesando préstamos vencidos...');
     await MultaService.procesarVencidos();
