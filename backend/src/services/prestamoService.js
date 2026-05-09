@@ -60,10 +60,10 @@ class PrestamoService {
                 c.nombre AS cliente_nombre,
                 c.telefono AS cliente_telefono,
                 GROUP_CONCAT(CONCAT(l.titulo, ' (x', dp.cantidad, ')') SEPARATOR ', ') AS libros
-            FROM Prestamos p
-            JOIN Cliente c ON p.fk_cliente = c.id_cliente
-            LEFT JOIN DetallePrestamo dp ON dp.fk_prestamo = p.id_prestamo
-            LEFT JOIN Libro l ON l.id_libro = dp.fk_libro
+            FROM prestamos p
+            JOIN cliente c ON p.fk_cliente = c.id_cliente
+            LEFT JOIN detalleprestamo dp ON dp.fk_prestamo = p.id_prestamo
+            LEFT JOIN libro l ON l.id_libro = dp.fk_libro
             GROUP BY p.id_prestamo
             ORDER BY p.fecha DESC
         `);
@@ -73,8 +73,8 @@ class PrestamoService {
     static async obtenerPorId(id) {
         const [prestamos] = await pool.execute(`
             SELECT p.*, c.nombre AS cliente_nombre, c.telefono AS cliente_telefono
-            FROM Prestamos p
-            JOIN Cliente c ON p.fk_cliente = c.id_cliente
+            FROM prestamos p
+            JOIN cliente c ON p.fk_cliente = c.id_cliente
             WHERE p.id_prestamo = ?
         `, [id]);
 
@@ -86,8 +86,8 @@ class PrestamoService {
 
         const [detalles] = await pool.execute(`
             SELECT dp.*, l.titulo, l.stock
-            FROM DetallePrestamo dp
-            JOIN Libro l ON l.id_libro = dp.fk_libro
+            FROM detalleprestamo dp
+            JOIN libro l ON l.id_libro = dp.fk_libro
             WHERE dp.fk_prestamo = ?
         `, [id]);
 
@@ -104,7 +104,7 @@ class PrestamoService {
             await conn.beginTransaction();
 
             const [activos] = await conn.execute(
-                `SELECT id_prestamo FROM Prestamos 
+                `SELECT id_prestamo FROM prestamos 
                  WHERE fk_cliente = ? AND estado = 'Activo'`,
                 [fk_cliente]
             );
@@ -116,7 +116,7 @@ class PrestamoService {
 
             for (const item of libros) {
                 const [rows] = await conn.execute(
-                    'SELECT titulo, stock FROM Libro WHERE id_libro = ?',
+                    'SELECT titulo, stock FROM libro WHERE id_libro = ?',
                     [item.id_libro]
                 );
                 if (rows.length === 0) {
@@ -134,7 +134,7 @@ class PrestamoService {
             }
 
             const [resultado] = await conn.execute(
-                `INSERT INTO Prestamos (fecha, fecha_limite, estado, fk_user, fk_cliente)
+                `INSERT INTO prestamos (fecha, fecha_limite, estado, fk_user, fk_cliente)
                  VALUES (?, ?, 'Activo', ?, ?)`,
                 [fecha, fecha_limite, fk_user, fk_cliente]
             );
@@ -142,12 +142,12 @@ class PrestamoService {
 
             for (const item of libros) {
                 await conn.execute(
-                    `INSERT INTO DetallePrestamo (fk_libro, fk_prestamo, cantidad, estado)
+                    `INSERT INTO detalleprestamo (fk_libro, fk_prestamo, cantidad, estado)
                      VALUES (?, ?, ?, 'Activo')`,
                     [item.id_libro, id_prestamo, item.cantidad]
                 );
                 await conn.execute(
-                    'UPDATE Libro SET stock = stock - ? WHERE id_libro = ?',
+                    'UPDATE libro SET stock = stock - ? WHERE id_libro = ?',
                     [item.cantidad, item.id_libro]
                 );
             }
@@ -173,7 +173,7 @@ class PrestamoService {
             await conn.beginTransaction();
 
             const [resultado] = await conn.execute(
-                'UPDATE Prestamos SET estado = ? WHERE id_prestamo = ?',
+                'UPDATE prestamos SET estado = ? WHERE id_prestamo = ?',
                 [estado, id]
             );
             if (resultado.affectedRows === 0) {
@@ -184,17 +184,17 @@ class PrestamoService {
 
             if (estado === 'Devuelto') {
                 const [detalles] = await conn.execute(
-                    'SELECT fk_libro, cantidad FROM DetallePrestamo WHERE fk_prestamo = ?',
+                    'SELECT fk_libro, cantidad FROM detalleprestamo WHERE fk_prestamo = ?',
                     [id]
                 );
                 for (const d of detalles) {
                     await conn.execute(
-                        'UPDATE Libro SET stock = stock + ? WHERE id_libro = ?',
+                        'UPDATE libro SET stock = stock + ? WHERE id_libro = ?',
                         [d.cantidad, d.fk_libro]
                     );
                 }
                 await conn.execute(
-                    `UPDATE DetallePrestamo 
+                    `UPDATE detalleprestamo 
                      SET estado = ?, fecha_devolucion = CURDATE() 
                      WHERE fk_prestamo = ?`,
                     [estado, id]
@@ -215,7 +215,7 @@ class PrestamoService {
     static async eliminar(id) {
     try {
         const [prestamos] = await pool.execute(
-            'SELECT estado FROM Prestamos WHERE id_prestamo = ?', [id]
+            'SELECT estado FROM prestamos WHERE id_prestamo = ?', [id]
         );
 
         if (prestamos.length === 0) {
@@ -231,7 +231,7 @@ class PrestamoService {
         }
 
         const [resultado] = await pool.execute(
-            'DELETE FROM Prestamos WHERE id_prestamo = ?', [id]
+            'DELETE FROM prestamos WHERE id_prestamo = ?', [id]
         );
 
         return { message: 'Préstamo eliminado correctamente' };
