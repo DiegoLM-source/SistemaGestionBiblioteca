@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE = "http://localhost:4000/api/prestamos";
+const BASE = `${API_URL}/prestamos`;
 
 export const getPrestamos = () => axios.get(BASE);
 export const getPrestamoById = (id) => axios.get(`${BASE}/${id}`);

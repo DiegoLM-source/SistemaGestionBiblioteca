@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE = "http://localhost:4000/api/libros";
+const BASE = `${API_URL}/libros`;
 
 export const getLibros = () => axios.get(BASE);
 export const getLibroById = (id) => axios.get(`${BASE}/${id}`);

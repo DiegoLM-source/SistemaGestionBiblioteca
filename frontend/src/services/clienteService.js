@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE = "http://localhost:4000/api/clientes";
+const BASE = `${API_URL}/clientes`;
 
 export const getClientes = () => axios.get(BASE);
 export const createCliente = (data) => axios.post(BASE, data);
