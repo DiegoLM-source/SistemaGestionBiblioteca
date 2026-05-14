@@ -27,6 +27,8 @@ function Prestamos() {
   const [busquedaClientes, setBusquedaClientes] = useState("");
   const [debouncedBusquedaLibros, setDebouncedBusquedaLibros] = useState("");
   const [debouncedBusquedaClientes, setDebouncedBusquedaClientes] = useState("");
+  const [pagina, setPagina] = useState(1);
+  const porPagina = 6;
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedBusquedaLibros(busquedaLibros), 300);
