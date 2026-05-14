@@ -62,6 +62,29 @@ function Prestamos() {
   const librosFiltrados = libros.filter(l => l.titulo.toLowerCase().includes(debouncedBusquedaLibros.toLowerCase()));
   const clientesFiltrados = clientes.filter(c => c.nombre.toLowerCase().includes(debouncedBusquedaClientes.toLowerCase()));
   const totalPaginas = Math.ceil(prestamosFiltrados.length / porPagina);
+  const prestamosPagina = prestamosFiltrados.slice((pagina - 1) * porPagina, pagina * porPagina);
+
+  useEffect(() => {
+    cargarPrestamos();
+    const cargarClientes = async () => {
+      try {
+        const res = await getClientes();
+        setClientes(res.data);
+      } catch (err) {
+        console.error("Error cargando clientes:", err);
+      }
+    };
+    const cargarLibros = async () => {
+      try {
+        const res = await getLibros();
+        setLibros(res.data);
+      } catch (err) {
+        console.error("Error cargando libros:", err);
+      }
+    };
+    cargarClientes();
+    cargarLibros();
+  }, []);
 
   const toggleLibro = (id_libro) => {
     setForm(f => {
