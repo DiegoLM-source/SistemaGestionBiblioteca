@@ -59,7 +59,7 @@ function Prestamos() {
 
   const librosFiltrados = libros.filter(l => l.titulo.toLowerCase().includes(debouncedBusquedaLibros.toLowerCase()));
   const clientesFiltrados = clientes.filter(c => c.nombre.toLowerCase().includes(debouncedBusquedaClientes.toLowerCase()));
-  const totalPaginas = Math.ceil(prestamosFiltradas.length / porPagina);
+  const totalPaginas = Math.ceil(prestamosFiltrados.length / porPagina);
 
   const toggleLibro = (id_libro) => {
     setForm(f => {
