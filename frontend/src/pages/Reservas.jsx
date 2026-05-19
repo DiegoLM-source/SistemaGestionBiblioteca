@@ -217,7 +217,7 @@ function Reservas() {
                       <td>{s.cantidad}</td>
                       <td>
                         <button className="lb-save" onClick={() => abrirAprobarSolicitud(s.id_solicitud)}>
-                          Aprobar y pasar a reserva
+                          Aprobar
                         </button>
                       </td>
                     </tr>

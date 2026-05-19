@@ -11,60 +11,71 @@ const {
 class AuthService {
 
     static async registrarUsuario(datos) {
-        const username = normalizeText(datos.username);
-        const password = String(datos.password || '');
-        const fk_rol = 2; // USUARIO
-        if (!isNonEmptyString(username) || username.length < 3 || username.length > 50) {
-            throw createValidationError('El usuario debe tener entre 3 y 50 caracteres');
-        }
+    const { username, password, nombre, correo, telefono } = datos;
+    const conn = await pool.getConnection();
 
-        if (/\s/.test(username)) {
-            throw createValidationError('El usuario no puede contener espacios');
-        }
+    try {
+        await conn.beginTransaction();
 
-        if (password.length < 6) {
-            throw createValidationError('La contraseña debe tener al menos 6 caracteres');
-        }
-
-        const [existentes] = await pool.execute(
-            'SELECT id_user FROM usuarios WHERE username = ?',
+        // Verificar si el username ya existe
+        const [existentes] = await conn.execute(
+            'SELECT id_user FROM Usuarios WHERE username = ?',
             [username]
         );
-
         if (existentes.length > 0) {
             const error = new Error('El usuario ya está registrado');
             error.status = 400;
             throw error;
         }
 
+        // Verificar si el correo ya existe
+        const [correoExistente] = await conn.execute(
+            'SELECT id_user FROM Usuarios WHERE correo = ?',
+            [correo]
+        );
+        if (correoExistente.length > 0) {
+            const error = new Error('El correo ya está registrado');
+            error.status = 400;
+            throw error;
+        }
+
+        // Crear el cliente
+        const [resultadoCliente] = await conn.execute(
+            'INSERT INTO Cliente (nombre, correo, telefono) VALUES (?, ?, ?)',
+            [nombre, correo, telefono || null]
+        );
+        const id_cliente = resultadoCliente.insertId;
+
+        // Hashear contraseña
         const saltRounds = 10;
         const passwordHash = await bcrypt.hash(password, saltRounds);
 
-        const [resultado] = await pool.execute(
-            'INSERT INTO usuarios (username, contrasena, fk_rol) VALUES (?, ?, ?)',
-            [username, passwordHash, fk_rol]
+        // Crear el usuario con fk_rol = 2 (USUARIO) y fk_cliente
+        const [resultadoUsuario] = await conn.execute(
+            `INSERT INTO Usuarios (username, contrasena, correo, fk_rol, fk_cliente)
+             VALUES (?, ?, ?, 2, ?)`,
+            [username, passwordHash, correo, id_cliente]
         );
 
         const nuevoUsuario = {
-            id: resultado.insertId,
+            id: resultadoUsuario.insertId,
             username,
-            fk_rol
+            fk_rol: 2,
+            fk_cliente: id_cliente
         };
 
-        await ClienteUsuarioService.getOrCreateClienteIdByUser(
-            resultado.insertId,
-            username,
-            null
-        );
+        const token = generarToken(nuevoUsuario);
 
-        const token = generarToken({
-            id: resultado.insertId,
-            email: username,
-            rol: fk_rol
-        });
-
+        await conn.commit();
         return { usuario: nuevoUsuario, token };
+
+    } catch (error) {
+        await conn.rollback();
+        throw error;
+    } finally {
+        conn.release();
     }
+}
 
     static async login(username, password) {
         const usernameNormalizado = normalizeText(username);

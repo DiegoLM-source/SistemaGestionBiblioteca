@@ -10,18 +10,25 @@ function Register() {
   const [form, setForm] = useState({
     username: "",
     password: "",
+    nombre: "",
+    correo: "",
+    telefono: "",
   });
 
   const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    if (!form.username || !form.password || !form.nombre || !form.correo) {
+      alert("Usuario, contraseña, nombre y correo son obligatorios");
+      return;
+    }
+    if (form.password.length < 6) {
+      alert("La contraseña debe tener mínimo 6 caracteres");
+      return;
+    }
     try {
       const res = await registerRequest(form);
       localStorage.setItem("token", res.data.token);
@@ -40,11 +47,7 @@ function Register() {
         <div className="login-copy register-copy">
           <span className="login-kicker">Nuevo acceso editorial</span>
           <h1>Crea una cuenta y abre la puerta del archivo central.</h1>
-          <p>
-            Registra a quien administrará catalogos, prestamos, reservas y lectores
-            dentro del sistema de gestion de biblioteca.
-          </p>
-
+          <p>Registrate para poder ser parte de nuestra biblioteca y tener la facilidad de reservar tus libros desde la comodidad de tu hogar</p>
           <div className="register-highlights">
             <div className="register-note">
               <strong>Roles claros</strong>
@@ -84,42 +87,46 @@ function Register() {
           </p>
 
           <form onSubmit={handleSubmit} className="login-form">
+
             <label className="login-field">
               <span>Usuario</span>
-              <input
-                className="login-input"
-                type="text"
-                name="username"
-                placeholder="Nombre de usuario"
-                value={form.username}
-                onChange={handleChange}
-              />
+              <input className="login-input" type="text" name="username"
+                placeholder="Nombre de usuario" value={form.username} onChange={handleChange} />
             </label>
 
             <label className="login-field">
-              <span>Contrasena</span>
+              <span>Contraseña</span>
               <div className="password-shell">
-                <input
-                  className="login-input"
-                  name="password"
+                <input className="login-input" name="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Minimo 6 caracteres"
-                  value={form.password}
-                  onChange={handleChange}
-                />
-                <button
-                  type="button"
-                  className="password-toggle"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
+                  placeholder="Mínimo 6 caracteres"
+                  value={form.password} onChange={handleChange} />
+                <button type="button" className="password-toggle"
+                  onClick={() => setShowPassword(!showPassword)}>
                   {showPassword ? "Ocultar" : "Mostrar"}
                 </button>
               </div>
             </label>
 
-            <button type="submit" className="login-btn">
-              Crear cuenta
-            </button>
+            <label className="login-field">
+              <span>Nombre completo</span>
+              <input className="login-input" type="text" name="nombre"
+                placeholder="Tu nombre completo" value={form.nombre} onChange={handleChange} />
+            </label>
+
+            <label className="login-field">
+              <span>Correo</span>
+              <input className="login-input" type="email" name="correo"
+                placeholder="tu@correo.com" value={form.correo} onChange={handleChange} />
+            </label>
+
+            <label className="login-field">
+              <span>Teléfono (opcional)</span>
+              <input className="login-input" type="text" name="telefono"
+                placeholder="Tu número de teléfono" value={form.telefono} onChange={handleChange} />
+            </label>
+
+            <button type="submit" className="login-btn">Crear cuenta</button>
           </form>
 
           <div className="card-footer">
