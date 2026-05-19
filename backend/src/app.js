@@ -13,6 +13,7 @@ const multaRoutes = require('./routes/multaRoutes');
 const cron = require('node-cron');
 const MultaService = require('./services/multaService');
 const errorHandler = require('./middlewares/errorHandler');
+const { verificarToken } = require('./middlewares/authMiddleware');
 
 const app = express();
 
@@ -45,14 +46,14 @@ cron.schedule('0 * * * *', async () => {
     await procesarPrestamosVencidos();
 });
 
-app.use(errorHandler);
 app.use('/api/auth', authRoutes);
-app.use('/api/libros', libroRoutes);
-app.use('/api/clientes', clienteRoutes);
-app.use('/api/prestamos', prestamoRoutes);
-app.use('/api/reservas', reservaRoutes);
-app.use('/api/categorias', categoriaRoutes);
-app.use('/api/estantes',   estanteRoutes);
-app.use('/api/multas', multaRoutes);
+app.use('/api/libros', verificarToken, libroRoutes);
+app.use('/api/clientes', verificarToken, clienteRoutes);
+app.use('/api/prestamos', verificarToken, prestamoRoutes);
+app.use('/api/reservas', verificarToken, reservaRoutes);
+app.use('/api/categorias', verificarToken, categoriaRoutes);
+app.use('/api/estantes', verificarToken, estanteRoutes);
+app.use('/api/multas', verificarToken, multaRoutes);
+app.use(errorHandler);
 
 module.exports = app;

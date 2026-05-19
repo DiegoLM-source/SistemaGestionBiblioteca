@@ -1,9 +1,9 @@
-import axios from "axios";
+import API from "./api";
 
-const BASE = "http://localhost:4000/api/libros";
+const BASE = "/libros";
 
-export const getLibros = () => axios.get(BASE);
-export const getLibroById = (id) => axios.get(`${BASE}/${id}`);
-export const createLibro = (data) => axios.post(BASE, data);
-export const updateLibro = (id, data) => axios.put(`${BASE}/${id}`, data);
-export const deleteLibro = (id) => axios.delete(`${BASE}/${id}`);
+export const getLibros = () => API.get(BASE);
+export const getLibroById = (id) => API.get(`${BASE}/${id}`);
+export const createLibro = (data) => API.post(BASE, data);
+export const updateLibro = (id, data) => API.put(`${BASE}/${id}`, data);
+export const deleteLibro = (id) => API.delete(`${BASE}/${id}`);

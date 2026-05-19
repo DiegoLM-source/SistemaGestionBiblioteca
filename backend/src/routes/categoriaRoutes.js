@@ -1,6 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../config/db');
+const { autorizarRoles } = require('../middlewares/authMiddleware');
+
+const ADMIN = 1;
+
+router.use(autorizarRoles(ADMIN));
 
 router.get('/', async (req, res) => {
     try {

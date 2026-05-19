@@ -1,6 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const LibroController = require('../controllers/libroController');
+const { autorizarRoles } = require('../middlewares/authMiddleware');
+
+const ADMIN = 1;
+
+router.use(autorizarRoles(ADMIN));
 
 router.get('/', LibroController.obtenerTodos);
 router.get('/:id', LibroController.obtenerPorId);

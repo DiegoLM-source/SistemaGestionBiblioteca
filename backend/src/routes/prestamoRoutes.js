@@ -1,11 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const PrestamoController = require('../controllers/prestamoController');
+const { autorizarRoles } = require('../middlewares/authMiddleware');
 
-router.get('/', PrestamoController.obtenerTodos);
-router.get('/:id', PrestamoController.obtenerPorId);
-router.post('/', PrestamoController.crear);
-router.patch('/:id/estado', PrestamoController.cambiarEstado);
-router.delete('/:id', PrestamoController.eliminar);
+const ADMIN = 1;
+const USUARIO = 2;
+
+router.get('/', autorizarRoles(ADMIN, USUARIO), PrestamoController.obtenerTodos);
+router.get('/:id', autorizarRoles(ADMIN, USUARIO), PrestamoController.obtenerPorId);
+router.post('/', autorizarRoles(ADMIN, USUARIO), PrestamoController.crear);
+router.patch('/:id/estado', autorizarRoles(ADMIN, USUARIO), PrestamoController.cambiarEstado);
+router.delete('/:id', autorizarRoles(ADMIN), PrestamoController.eliminar);
 
 module.exports = router;

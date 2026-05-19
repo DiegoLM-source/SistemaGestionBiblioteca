@@ -1,4 +1,6 @@
-import axios from "axios";
-const BASE = "http://localhost:4000/api/estantes";
-export const getEstantes = () => axios.get(BASE);
-export const createEstante = (data) => axios.post(BASE, data);
+import API from "./api";
+
+const BASE = "/estantes";
+
+export const getEstantes = () => API.get(BASE);
+export const createEstante = (data) => API.post(BASE, data);

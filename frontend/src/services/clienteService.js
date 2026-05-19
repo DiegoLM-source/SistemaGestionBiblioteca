@@ -1,8 +1,8 @@
-import axios from "axios";
+import API from "./api";
 
-const BASE = "http://localhost:4000/api/clientes";
+const BASE = "/clientes";
 
-export const getClientes = () => axios.get(BASE);
-export const createCliente = (data) => axios.post(BASE, data);
-export const updateCliente = (id, data) => axios.put(`${BASE}/${id}`, data);
-export const deleteCliente = (id) => axios.delete(`${BASE}/${id}`);
+export const getClientes = () => API.get(BASE);
+export const createCliente = (data) => API.post(BASE, data);
+export const updateCliente = (id, data) => API.put(`${BASE}/${id}`, data);
+export const deleteCliente = (id) => API.delete(`${BASE}/${id}`);

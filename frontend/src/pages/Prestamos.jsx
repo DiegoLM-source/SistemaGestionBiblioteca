@@ -6,7 +6,7 @@ import { getPrestamos, createPrestamo, cambiarEstado, deletePrestamo } from "../
 import { getClientes } from "../services/clienteService";
 import { getLibros } from "../services/libroService";
 import { getCurrentDateString } from "../utils/date";
-import { logoutUser } from "../utils/auth";
+import { isAdmin, logoutUser } from "../utils/auth";
 import "../styles/dashboard.css";
 import "../styles/prestamos.css";
 
@@ -14,6 +14,7 @@ const formVacio = { fecha: "", fecha_limite: "", fk_cliente: "", libros: [] };
 
 function Prestamos() {
   const navigate = useNavigate();
+  const admin = isAdmin();
   const hoy = getCurrentDateString();
   const [prestamos, setPrestamos] = useState([]);
   const [clientes, setClientes] = useState([]);
@@ -28,9 +29,11 @@ function Prestamos() {
 
   useEffect(() => {
     cargarPrestamos();
-    getClientes().then(r => setClientes(r.data));
-    getLibros().then(r => setLibros(r.data));
-  }, []);
+    if (admin) {
+      getClientes().then(r => setClientes(r.data));
+      getLibros().then(r => setLibros(r.data));
+    }
+  }, [admin]);
 
   const cargarPrestamos = async () => {
     try {
@@ -142,16 +145,20 @@ function Prestamos() {
               <FiGrid size={20} />
           </div>
         </Link>
-        <Link to="/books">
-          <div className="dash-sidebar-icon">
-            <FiBook size={20} />
-          </div>
-        </Link>
-        <Link to="/Clientes">
-          <div className="dash-sidebar-icon">
-            <FiUser size={20} />
-          </div>
-        </Link>
+        {admin && (
+          <Link to="/books">
+            <div className="dash-sidebar-icon">
+              <FiBook size={20} />
+            </div>
+          </Link>
+        )}
+        {admin && (
+          <Link to="/Clientes">
+            <div className="dash-sidebar-icon">
+              <FiUser size={20} />
+            </div>
+          </Link>
+        )}
           <div className="dash-sidebar-icon active">
             <FaRegBookmark size={20}/>
           </div>
@@ -160,11 +167,13 @@ function Prestamos() {
             <FaDollarSign size={20} />
           </div>
         </Link>
-        <Link to="/reservas">
-          <div className="dash-sidebar-icon">
-            <FiClock size={20} />
-          </div>
-        </Link>
+        {admin && (
+          <Link to="/reservas">
+            <div className="dash-sidebar-icon">
+              <FiClock size={20} />
+            </div>
+          </Link>
+        )}
         <div className="sidebar-spacer" />
         <div className="dash-sidebar-icon" onClick={handleLogout} title="Cerrar sesión" style={{ cursor: "pointer" }}>
           <FiLogOut size={20} />
@@ -204,9 +213,11 @@ function Prestamos() {
               <FiXCircle size={14} /> Vencido
             </button>
           </div>
-          <button className="pr-add-btn" onClick={() => { setForm(formVacio); setError(""); setModal(true); }}>
-            <FiPlus size={16} />
-          </button>
+          {admin && (
+            <button className="pr-add-btn" onClick={() => { setForm(formVacio); setError(""); setModal(true); }}>
+              <FiPlus size={16} />
+            </button>
+          )}
         </div>
 
         <div className="pr-grid-wrap">
@@ -216,7 +227,7 @@ function Prestamos() {
               <span>No hay préstamos
                 {filtro !== "todos" ? ` con estado "${filtro}"` : " registrados"}
               </span>
-              {filtro === "todos" && (
+              {filtro === "todos" && admin && (
                 <button className="lb-empty-cta"
                   onClick={() => { setForm(formVacio); setError(""); setModal(true); }}>
                   + Crear primer préstamo
@@ -246,9 +257,11 @@ function Prestamos() {
                     >
                       {p.estado === "Devuelto" ? "✓ Devuelto" : "Marcar como devuelto"}
                     </button>
-                    <button className="pr-del-btn" onClick={() => eliminar(p.id_prestamo)}>
-                      <FiTrash2 size={14} />
-                    </button>
+                    {admin && (
+                      <button className="pr-del-btn" onClick={() => eliminar(p.id_prestamo)}>
+                        <FiTrash2 size={14} />
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -267,7 +280,7 @@ function Prestamos() {
         )}
       </div>
 
-      {modal && (
+      {modal && admin && (
         <div className="lb-overlay">
           <div className="lb-modal">
             <h3>Nuevo préstamo</h3>

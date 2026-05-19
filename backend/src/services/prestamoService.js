@@ -164,7 +164,7 @@ class PrestamoService {
     }
 
     static async cambiarEstado(id, estado) {
-        if (!['Devuelto'].includes(estado)) {
+        if (!['devueltoq'].includes(estado)) {
             throw createValidationError('El estado enviado no es válido');
         }
 

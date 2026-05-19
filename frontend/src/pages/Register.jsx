@@ -10,7 +10,6 @@ function Register() {
   const [form, setForm] = useState({
     username: "",
     password: "",
-    fk_rol: 1,
   });
 
   const handleChange = (e) => {

@@ -4,7 +4,6 @@ const { generarToken } = require('../utils/jwt');
 const {
     normalizeText,
     isNonEmptyString,
-    isPositiveInteger,
     createValidationError
 } = require('../utils/validators');
 
@@ -13,7 +12,7 @@ class AuthService {
     static async registrarUsuario(datos) {
         const username = normalizeText(datos.username);
         const password = String(datos.password || '');
-        const fk_rol = Number(datos.fk_rol);
+        const fk_rol = 2; // USUARIO
 
         if (!isNonEmptyString(username) || username.length < 3 || username.length > 50) {
             throw createValidationError('El usuario debe tener entre 3 y 50 caracteres');
@@ -25,10 +24,6 @@ class AuthService {
 
         if (password.length < 6) {
             throw createValidationError('La contraseña debe tener al menos 6 caracteres');
-        }
-
-        if (!isPositiveInteger(fk_rol)) {
-            throw createValidationError('El rol seleccionado no es válido');
         }
 
         const [existentes] = await pool.execute(

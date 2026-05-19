@@ -30,42 +30,42 @@ function AppRouter() {
         />
 
         <Route path="/dashboard" element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={[1, 2]}>
               <Dashboard />
             </ProtectedRoute>
           }
         />
 
         <Route path="/books" element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={[1]}>
               <Books />
             </ProtectedRoute>
           }
         />
 
         <Route path="/clientes" element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={[1]}>
               <Clientes />
             </ProtectedRoute>
           }
         />
 
         <Route path="/prestamos" element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={[1, 2]}>
               <Prestamos />
             </ProtectedRoute>
           }
         />
 
         <Route path="/multas" element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={[1, 2]}>
               <Multas />
             </ProtectedRoute>
           }
         />
 
         <Route path="/reservas" element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={[1]}>
               <Reservas />
             </ProtectedRoute>
           }

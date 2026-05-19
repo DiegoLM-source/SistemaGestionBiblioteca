@@ -1,4 +1,6 @@
-import axios from "axios";
-const BASE = "http://localhost:4000/api/categorias";
-export const getCategorias = () => axios.get(BASE);
-export const createCategoria = (data) => axios.post(BASE, data);
+import API from "./api";
+
+const BASE = "/categorias";
+
+export const getCategorias = () => API.get(BASE);
+export const createCategoria = (data) => API.post(BASE, data);

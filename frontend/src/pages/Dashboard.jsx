@@ -6,11 +6,12 @@ import { getLibros } from "../services/libroService";
 import { getClientes } from "../services/clienteService";
 import { getPrestamos } from "../services/prestamoServices";
 import { getMultas } from "../services/multaService";
-import { logoutUser } from "../utils/auth";
+import { isAdmin, logoutUser } from "../utils/auth";
 import "../styles/dashboard.css";
 
 function Dashboard() {
   const navigate = useNavigate();
+  const admin = isAdmin();
   const [stats, setStats] = useState({
     libros: 0, clientes: 0,
     prestamosActivos: 0, multasPendientes: 0
@@ -21,11 +22,11 @@ function Dashboard() {
   useEffect(() => {
     const cargarStats = async () => {
       try {
-        const [libros, clientes, prestamos, multas] = await Promise.all([
-          getLibros(),
-          getClientes(),
+        const [prestamos, multas, libros, clientes] = await Promise.all([
           getPrestamos(),
-          getMultas()
+          getMultas(),
+          admin ? getLibros() : Promise.resolve({ data: [] }),
+          admin ? getClientes() : Promise.resolve({ data: [] }),
         ]);
         setStats({
           libros: libros.data.length,
@@ -63,11 +64,11 @@ function Dashboard() {
     <div className="dash-wrap">
       <aside className="dash-sidebar">
         <div className="dash-sidebar-icon active"><FiGrid size={20} /></div>
-        <Link to="/Books"><div className="dash-sidebar-icon"><FiBook size={20} /></div></Link>
-        <Link to="/Clientes"><div className="dash-sidebar-icon"><FiUser size={20} /></div></Link>
+        {admin && <Link to="/Books"><div className="dash-sidebar-icon"><FiBook size={20} /></div></Link>}
+        {admin && <Link to="/Clientes"><div className="dash-sidebar-icon"><FiUser size={20} /></div></Link>}
         <Link to="/Prestamos"><div className="dash-sidebar-icon"><FaRegBookmark size={20} /></div></Link>
         <Link to="/multas"><div className="dash-sidebar-icon"><FaDollarSign size={20} /></div></Link>
-        <Link to="/reservas"><div className="dash-sidebar-icon"><FiClock size={20} /></div></Link>
+        {admin && <Link to="/reservas"><div className="dash-sidebar-icon"><FiClock size={20} /></div></Link>}
         <div className="sidebar-spacer" />
         <div className="dash-sidebar-icon" onClick={handleLogout} title="Cerrar sesión" style={{cursor: "pointer"}}><FiLogOut size={20} /></div>
       </aside>
@@ -82,16 +83,20 @@ function Dashboard() {
         </div>
 
         <div className="dash-stats">
-          <div className="dash-stat-card">
-            <span className="dash-stat-label">Libros</span>
-            <span className="dash-stat-value">{stats.libros}</span>
-            <div className="dash-stat-bar" style={{ background: "#070A26" }} />
-          </div>
-          <div className="dash-stat-card">
-            <span className="dash-stat-label">Clientes</span>
-            <span className="dash-stat-value">{stats.clientes}</span>
-            <div className="dash-stat-bar" style={{ background: "#2e7d32" }} />
-          </div>
+          {admin && (
+            <div className="dash-stat-card">
+              <span className="dash-stat-label">Libros</span>
+              <span className="dash-stat-value">{stats.libros}</span>
+              <div className="dash-stat-bar" style={{ background: "#070A26" }} />
+            </div>
+          )}
+          {admin && (
+            <div className="dash-stat-card">
+              <span className="dash-stat-label">Clientes</span>
+              <span className="dash-stat-value">{stats.clientes}</span>
+              <div className="dash-stat-bar" style={{ background: "#2e7d32" }} />
+            </div>
+          )}
           <div className="dash-stat-card">
             <span className="dash-stat-label">Préstamos activos</span>
             <span className="dash-stat-value">{stats.prestamosActivos}</span>

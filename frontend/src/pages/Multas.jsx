@@ -6,7 +6,7 @@ import { getMultas, createMulta, pagarMulta, deleteMulta } from "../services/mul
 import { getClientes } from "../services/clienteService";
 import { getPrestamos } from "../services/prestamoServices";
 import { getLibros } from "../services/libroService";
-import { logoutUser } from "../utils/auth";
+import { isAdmin, logoutUser } from "../utils/auth";
 import "../styles/dashboard.css";
 import "../styles/multas.css";
 
@@ -18,6 +18,7 @@ const formVacio = {
 
 function Multas() {
   const navigate = useNavigate();
+  const admin = isAdmin();
   const [multas, setMultas] = useState([]);
   const [clientes, setClientes] = useState([]);
   const [prestamos, setPrestamos] = useState([]);
@@ -30,10 +31,12 @@ function Multas() {
 
   useEffect(() => {
     cargarMultas();
-    getClientes().then(r => setClientes(r.data));
-    getPrestamos().then(r => setPrestamos(r.data));
-    getLibros().then(r => setLibros(r.data));
-  }, []);
+    if (admin) {
+      getClientes().then(r => setClientes(r.data));
+      getPrestamos().then(r => setPrestamos(r.data));
+      getLibros().then(r => setLibros(r.data));
+    }
+  }, [admin]);
 
   const cargarMultas = async () => {
     try {
@@ -108,16 +111,20 @@ function Multas() {
                     <FiGrid size={20} />
                 </div>
               </Link>
-              <Link to="/books">
-                <div className="dash-sidebar-icon">
-                  <FiBook size={20} />
-                </div>
-              </Link>
-              <Link to="/Clientes">
-                <div className="dash-sidebar-icon">
-                  <FiUser size={20} />
-                </div>
-              </Link>
+              {admin && (
+                <Link to="/books">
+                  <div className="dash-sidebar-icon">
+                    <FiBook size={20} />
+                  </div>
+                </Link>
+              )}
+              {admin && (
+                <Link to="/Clientes">
+                  <div className="dash-sidebar-icon">
+                    <FiUser size={20} />
+                  </div>
+                </Link>
+              )}
               <Link to="/Prestamos">
                 <div className="dash-sidebar-icon">
                   <FaRegBookmark size={20}/>
@@ -126,11 +133,13 @@ function Multas() {
                 <div className="dash-sidebar-icon active">
                   <FaDollarSign size={20} />
                 </div>
-              <Link to="/reservas">
-                <div className="dash-sidebar-icon">
-                  <FiClock size={20} />
-                </div>
-              </Link>
+              {admin && (
+                <Link to="/reservas">
+                  <div className="dash-sidebar-icon">
+                    <FiClock size={20} />
+                  </div>
+                </Link>
+              )}
               <div className="sidebar-spacer" />
               <div className="dash-sidebar-icon" onClick={handleLogout} title="Cerrar sesión" style={{ cursor: "pointer" }}>
                 <FiLogOut size={20} />
@@ -165,9 +174,11 @@ function Multas() {
               <FiCheckCircle size={14} /> Pagada
             </button>
           </div>
-          <button className="mt-add-btn" onClick={() => { setForm(formVacio); setError(""); setModal(true); }}>
-            <FiPlus size={16} />
-          </button>
+          {admin && (
+            <button className="mt-add-btn" onClick={() => { setForm(formVacio); setError(""); setModal(true); }}>
+              <FiPlus size={16} />
+            </button>
+          )}
         </div>
 
         <div className="mt-grid-wrap">
@@ -234,9 +245,11 @@ function Multas() {
                   >
                     {m.estado ? "✓ Pagada" : "Marcar como pagada"}
                   </button>
-                  <button className="mt-del-btn" onClick={() => eliminar(m.id_multa)}>
-                    <FiTrash2 size={14} />
-                  </button>
+                  {admin && (
+                    <button className="mt-del-btn" onClick={() => eliminar(m.id_multa)}>
+                      <FiTrash2 size={14} />
+                    </button>
+                  )}
                 </div>
 
               </div>
@@ -245,7 +258,7 @@ function Multas() {
         </div>
       </div>
 
-      {modal && (
+      {modal && admin && (
         <div className="lb-overlay">
           <div className="lb-modal">
             <h3>Nueva multa</h3>

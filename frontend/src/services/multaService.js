@@ -1,8 +1,8 @@
-import axios from "axios";
+import API from "./api";
 
-const BASE = "http://localhost:4000/api/multas";
+const BASE = "/multas";
 
-export const getMultas = () => axios.get(BASE);
-export const createMulta = (data) => axios.post(BASE, data);
-export const pagarMulta = (id) => axios.patch(`${BASE}/${id}/pagar`);
-export const deleteMulta = (id) => axios.delete(`${BASE}/${id}`);
+export const getMultas = () => API.get(BASE);
+export const createMulta = (data) => API.post(BASE, data);
+export const pagarMulta = (id) => API.patch(`${BASE}/${id}/pagar`);
+export const deleteMulta = (id) => API.delete(`${BASE}/${id}`);
