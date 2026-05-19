@@ -19,7 +19,7 @@ class AuthService {
 
         // Verificar si el username ya existe
         const [existentes] = await conn.execute(
-            'SELECT id_user FROM Usuarios WHERE username = ?',
+            'SELECT id_user FROM usuarios WHERE username = ?',
             [username]
         );
         if (existentes.length > 0) {
@@ -30,7 +30,7 @@ class AuthService {
 
         // Verificar si el correo ya existe
         const [correoExistente] = await conn.execute(
-            'SELECT id_user FROM Usuarios WHERE correo = ?',
+            'SELECT id_user FROM usuarios WHERE correo = ?',
             [correo]
         );
         if (correoExistente.length > 0) {
@@ -41,7 +41,7 @@ class AuthService {
 
         // Crear el cliente
         const [resultadoCliente] = await conn.execute(
-            'INSERT INTO Cliente (nombre, correo, telefono) VALUES (?, ?, ?)',
+            'INSERT INTO cliente (nombre, correo, telefono) VALUES (?, ?, ?)',
             [nombre, correo, telefono || null]
         );
         const id_cliente = resultadoCliente.insertId;
@@ -52,7 +52,7 @@ class AuthService {
 
         // Crear el usuario con fk_rol = 2 (USUARIO) y fk_cliente
         const [resultadoUsuario] = await conn.execute(
-            `INSERT INTO Usuarios (username, contrasena, correo, fk_rol, fk_cliente)
+            `INSERT INTO usuarios (username, contrasena, correo, fk_rol, fk_cliente)
              VALUES (?, ?, ?, 2, ?)`,
             [username, passwordHash, correo, id_cliente]
         );
