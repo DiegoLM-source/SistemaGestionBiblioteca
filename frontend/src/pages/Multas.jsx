@@ -6,8 +6,7 @@ import { getMultas, createMulta, pagarMulta, deleteMulta } from "../services/mul
 import { getClientes } from "../services/clienteService";
 import { getPrestamos } from "../services/prestamoServices";
 import { getLibros } from "../services/libroService";
-import { isAdmin, logoutUser } from "../utils/auth";
-import "../styles/dashboard.css";
+import { isAdmin, logoutUser } from "../utils/auth";import "../styles/dashboard.css";
 import "../styles/multas.css";
 
 
@@ -18,8 +17,7 @@ const formVacio = {
 
 function Multas() {
   const navigate = useNavigate();
-  const admin = isAdmin();
-  const [multas, setMultas] = useState([]);
+  const admin = isAdmin();  const [multas, setMultas] = useState([]);
   const [clientes, setClientes] = useState([]);
   const [prestamos, setPrestamos] = useState([]);
   const [libros, setLibros] = useState([]);
@@ -37,7 +35,6 @@ function Multas() {
       getLibros().then(r => setLibros(r.data));
     }
   }, [admin]);
-
   const cargarMultas = async () => {
     try {
       const res = await getMultas();
@@ -124,8 +121,7 @@ function Multas() {
                     <FiUser size={20} />
                   </div>
                 </Link>
-              )}
-              <Link to="/Prestamos">
+              )}              <Link to="/Prestamos">
                 <div className="dash-sidebar-icon">
                   <FaRegBookmark size={20}/>
                 </div>     
@@ -139,8 +135,7 @@ function Multas() {
                     <FiClock size={20} />
                   </div>
                 </Link>
-              )}
-              <div className="sidebar-spacer" />
+              )}              <div className="sidebar-spacer" />
               <div className="dash-sidebar-icon" onClick={handleLogout} title="Cerrar sesión" style={{ cursor: "pointer" }}>
                 <FiLogOut size={20} />
               </div>
@@ -178,8 +173,7 @@ function Multas() {
             <button className="mt-add-btn" onClick={() => { setForm(formVacio); setError(""); setModal(true); }}>
               <FiPlus size={16} />
             </button>
-          )}
-        </div>
+          )}        </div>
 
         <div className="mt-grid-wrap">
           <div className="mt-grid">
@@ -227,8 +221,7 @@ function Multas() {
                           <span className={`mt-tipo ${d.tipo}`}>{d.tipo}</span>
                           <div className="mt-detalle-info">
                             <span className="mt-detalle-desc">{d.descripcion}</span>
-                            {d.libro && <span className="mt-detalle-libro">📖 {d.libro}</span>}
-                          </div>
+                            {d.libro && <span className="mt-detalle-libro">📖 {d.libro}</span>}                          </div>
                           <span className="mt-detalle-monto">${d.monto?.toLocaleString()}</span>
                         </div>
                       ))}
@@ -249,8 +242,7 @@ function Multas() {
                     <button className="mt-del-btn" onClick={() => eliminar(m.id_multa)}>
                       <FiTrash2 size={14} />
                     </button>
-                  )}
-                </div>
+                  )}                </div>
 
               </div>
             ))}
@@ -258,8 +250,7 @@ function Multas() {
         </div>
       </div>
 
-      {modal && admin && (
-        <div className="lb-overlay">
+      {modal && admin && (        <div className="lb-overlay">
           <div className="lb-modal">
             <h3>Nueva multa</h3>
 

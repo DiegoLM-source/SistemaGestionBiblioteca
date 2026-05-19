@@ -20,7 +20,6 @@ export const getUserRole = () => {
 };
 
 export const isAdmin = () => getUserRole() === 1;
-
 export const logoutUser = (navigate) => {
   localStorage.removeItem("token");
   navigate("/", { replace: true });

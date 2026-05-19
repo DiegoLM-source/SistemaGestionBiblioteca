@@ -6,7 +6,6 @@ const { autorizarRoles } = require('../middlewares/authMiddleware');
 const ADMIN = 1;
 
 router.use(autorizarRoles(ADMIN));
-
 router.get('/', LibroController.obtenerTodos);
 router.get('/:id', LibroController.obtenerPorId);
 router.post('/', LibroController.crear);

@@ -6,16 +6,14 @@ import { getPrestamos, createPrestamo, cambiarEstado, deletePrestamo } from "../
 import { getClientes } from "../services/clienteService";
 import { getLibros } from "../services/libroService";
 import { getCurrentDateString } from "../utils/date";
-import { isAdmin, logoutUser } from "../utils/auth";
-import "../styles/dashboard.css";
+import { isAdmin, logoutUser } from "../utils/auth";import "../styles/dashboard.css";
 import "../styles/prestamos.css";
 
 const formVacio = { fecha: "", fecha_limite: "", fk_cliente: "", libros: [] };
 
 function Prestamos() {
   const navigate = useNavigate();
-  const admin = isAdmin();
-  const hoy = getCurrentDateString();
+  const admin = isAdmin();  const hoy = getCurrentDateString();
   const [prestamos, setPrestamos] = useState([]);
   const [clientes, setClientes] = useState([]);
   const [libros, setLibros] = useState([]);
@@ -34,7 +32,6 @@ function Prestamos() {
       getLibros().then(r => setLibros(r.data));
     }
   }, [admin]);
-
   const cargarPrestamos = async () => {
     try {
       const res = await getPrestamos();
@@ -56,7 +53,6 @@ function Prestamos() {
 
   const totalPaginas = Math.ceil(prestamosFiltrados.length / porPagina);
   const prestamosPagina = prestamosFiltrados.slice((pagina - 1) * porPagina, pagina * porPagina);
-
   const toggleLibro = (id_libro) => {
     setForm(f => {
         const existe = f.libros.find(l => l.id_libro === id_libro);
@@ -158,8 +154,7 @@ function Prestamos() {
               <FiUser size={20} />
             </div>
           </Link>
-        )}
-          <div className="dash-sidebar-icon active">
+        )}          <div className="dash-sidebar-icon active">
             <FaRegBookmark size={20}/>
           </div>
         <Link to="/multas">
@@ -173,8 +168,7 @@ function Prestamos() {
               <FiClock size={20} />
             </div>
           </Link>
-        )}
-        <div className="sidebar-spacer" />
+        )}        <div className="sidebar-spacer" />
         <div className="dash-sidebar-icon" onClick={handleLogout} title="Cerrar sesión" style={{ cursor: "pointer" }}>
           <FiLogOut size={20} />
         </div>
@@ -217,8 +211,7 @@ function Prestamos() {
             <button className="pr-add-btn" onClick={() => { setForm(formVacio); setError(""); setModal(true); }}>
               <FiPlus size={16} />
             </button>
-          )}
-        </div>
+          )}        </div>
 
         <div className="pr-grid-wrap">
           {prestamosFiltrados.length === 0 ? (
@@ -229,8 +222,7 @@ function Prestamos() {
               </span>
               {filtro === "todos" && admin && (
                 <button className="lb-empty-cta"
-                  onClick={() => { setForm(formVacio); setError(""); setModal(true); }}>
-                  + Crear primer préstamo
+                  onClick={() => { setForm(formVacio); setError(""); setModal(true); }}>                  + Crear primer préstamo
                 </button>
               )}
             </div>
@@ -261,8 +253,7 @@ function Prestamos() {
                       <button className="pr-del-btn" onClick={() => eliminar(p.id_prestamo)}>
                         <FiTrash2 size={14} />
                       </button>
-                    )}
-                  </div>
+                    )}                  </div>
                 </div>
               ))}
             </div>
@@ -280,8 +271,7 @@ function Prestamos() {
         )}
       </div>
 
-      {modal && admin && (
-        <div className="lb-overlay">
+      {modal && admin && (        <div className="lb-overlay">
           <div className="lb-modal">
             <h3>Nuevo préstamo</h3>
             <label className="pr-form-label">Fecha préstamo</label>
@@ -296,14 +286,12 @@ function Prestamos() {
             <select className="lb-input"
               value={form.fk_cliente} onChange={e => setForm({ ...form, fk_cliente: e.target.value })}>
               <option value="">Seleccionar cliente...</option>
-              {clientes.map(c => (
-                <option key={c.id_cliente} value={c.id_cliente}>{c.nombre}</option>
+              {clientes.map(c => (                <option key={c.id_cliente} value={c.id_cliente}>{c.nombre}</option>
               ))}
             </select>
             <label className="pr-form-label">Libros</label>
             <div className="pr-libros-check">
-            {libros.map(l => {
-                const seleccionado = form.libros.find(x => x.id_libro === l.id_libro);
+            {libros.map(l => {                const seleccionado = form.libros.find(x => x.id_libro === l.id_libro);
                 return (
                 <div key={l.id_libro} className="pr-check-item">
                     <input

@@ -12,8 +12,7 @@
   --accent-deep: #2f2219;
   --accent-warm: #916536;
   --accent-gold: #c69c52;
-  --line-soft: rgba(106, 76, 46, 0.1);
-  --surface: rgba(255, 253, 249, 0.88);
+  --line-soft: rgba(106, 76, 46, 0.1);  --surface: rgba(255, 253, 249, 0.88);
 }
 
 * {
@@ -53,8 +52,7 @@ body {
   background:
     linear-gradient(180deg, rgba(44, 29, 20, 0.96), rgba(24, 17, 12, 0.96)),
     linear-gradient(180deg, rgba(255, 242, 211, 0.06), transparent);
-  border-right: 1px solid rgba(255, 236, 199, 0.08);
-  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.03);
+  border-right: 1px solid rgba(255, 236, 199, 0.08);  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.03);
 }
 
 .dash-sidebar::before {
@@ -64,8 +62,7 @@ body {
   width: 42px;
   height: 42px;
   border-radius: 14px;
-  background: radial-gradient(circle, rgba(198, 156, 82, 0.2), transparent 70%);
-  filter: blur(4px);
+  background: radial-gradient(circle, rgba(198, 156, 82, 0.2), transparent 70%);  filter: blur(4px);
   pointer-events: none;
 }
 
@@ -93,16 +90,14 @@ body {
 
 .dash-sidebar-icon:hover {
   color: #fff7ea;
-  background: rgba(255, 246, 227, 0.08);
-  border-color: rgba(255, 236, 199, 0.08);
+  background: rgba(255, 246, 227, 0.08);  border-color: rgba(255, 236, 199, 0.08);
   transform: translateY(-1px);
 }
 
 .dash-sidebar-icon.active {
   color: #fff9f0;
   background: linear-gradient(180deg, rgba(198, 156, 82, 0.24), rgba(198, 156, 82, 0.08));
-  border-color: rgba(219, 185, 124, 0.22);
-  box-shadow: inset 0 1px 0 rgba(255, 251, 243, 0.12);
+  border-color: rgba(219, 185, 124, 0.22);  box-shadow: inset 0 1px 0 rgba(255, 251, 243, 0.12);
 }
 
 .dash-main {
@@ -132,8 +127,7 @@ body {
 
 .dash-search:hover,
 .dash-search:focus-within {
-  border-color: rgba(198, 156, 82, 0.5);
-  box-shadow:
+  border-color: rgba(198, 156, 82, 0.5);  box-shadow:
     0 0 0 4px rgba(198, 156, 82, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.85);
   transform: translateY(-1px);
@@ -164,8 +158,7 @@ body {
   padding: 18px 20px;
   border-radius: 24px;
   background:
-    linear-gradient(180deg, rgba(53, 37, 26, 0.96), rgba(31, 22, 15, 0.96)),
-    linear-gradient(180deg, rgba(255, 239, 209, 0.06), transparent);
+    linear-gradient(180deg, rgba(53, 37, 26, 0.96), rgba(31, 22, 15, 0.96)),    linear-gradient(180deg, rgba(255, 239, 209, 0.06), transparent);
   color: #fff8ec;
   box-shadow: 0 20px 45px rgba(45, 29, 17, 0.14);
   border: 1px solid rgba(255, 236, 199, 0.08);

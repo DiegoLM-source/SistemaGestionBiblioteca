@@ -29,14 +29,12 @@ class ClienteService {
     }
 
     static async obtenerTodos() {
-        const [clientes] = await pool.execute('SELECT * FROM Cliente');
-        return clientes;
+        const [clientes] = await pool.execute('SELECT * FROM Cliente');        return clientes;
     }
 
     static async obtenerPorId(id) {
         const [clientes] = await pool.execute(
-            'SELECT * FROM Cliente WHERE id_cliente = ?', [id]
-        );
+            'SELECT * FROM Cliente WHERE id_cliente = ?', [id]        );
         if (clientes.length === 0) {
             const error = new Error('Cliente no encontrado');
             error.status = 404;
@@ -48,8 +46,7 @@ class ClienteService {
     static async crear(datos) {
         const { nombre, correo, telefono } = this.validarDatos(datos);
         const [resultado] = await pool.execute(
-            'INSERT INTO Cliente (nombre, correo, telefono) VALUES (?, ?, ?)',
-            [nombre, correo, telefono]
+            'INSERT INTO Cliente (nombre, correo, telefono) VALUES (?, ?, ?)',            [nombre, correo, telefono]
         );
         return { id_cliente: resultado.insertId, nombre, correo, telefono };
     }
@@ -57,8 +54,7 @@ class ClienteService {
     static async actualizar(id, datos) {
         const { nombre, correo, telefono } = this.validarDatos(datos);
         const [resultado] = await pool.execute(
-            'UPDATE Cliente SET nombre=?, correo=?, telefono=? WHERE id_cliente=?',
-            [nombre, correo, telefono, id]
+            'UPDATE Cliente SET nombre=?, correo=?, telefono=? WHERE id_cliente=?',            [nombre, correo, telefono, id]
         );
         if (resultado.affectedRows === 0) {
             const error = new Error('Cliente no encontrado');
@@ -70,8 +66,7 @@ class ClienteService {
 
     static async eliminar(id) {
         const [resultado] = await pool.execute(
-            'DELETE FROM Cliente WHERE id_cliente = ?', [id]
-        );
+            'DELETE FROM Cliente WHERE id_cliente = ?', [id]        );
         if (resultado.affectedRows === 0) {
             const error = new Error('Cliente no encontrado');
             error.status = 404;

@@ -16,7 +16,6 @@ const errorHandler = require('./middlewares/errorHandler');
 const { verificarToken } = require('./middlewares/authMiddleware');
 
 const app = express();
-
 const procesarPrestamosVencidos = async () => {
     console.log('[CRON] Procesando préstamos vencidos...');
     await MultaService.procesarVencidos();
@@ -55,5 +54,4 @@ app.use('/api/categorias', verificarToken, categoriaRoutes);
 app.use('/api/estantes', verificarToken, estanteRoutes);
 app.use('/api/multas', verificarToken, multaRoutes);
 app.use(errorHandler);
-
 module.exports = app;

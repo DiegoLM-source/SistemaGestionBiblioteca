@@ -27,8 +27,7 @@ class MultaService {
                         (
                             SELECT GROUP_CONCAT(lb.titulo SEPARATOR ', ')
                             FROM DetallePrestamo dp
-                            JOIN Libro lb ON lb.id_libro = dp.fk_libro
-                            WHERE dp.fk_prestamo = dm.fk_prestamo
+                            JOIN Libro lb ON lb.id_libro = dp.fk_libro                            WHERE dp.fk_prestamo = dm.fk_prestamo
                         )
                     )
                 )
@@ -36,8 +35,7 @@ class MultaService {
         FROM Multa m
         JOIN Cliente c ON m.fk_cliente = c.id_cliente
         LEFT JOIN DetalleMulta dm ON dm.fk_multa = m.id_multa
-        LEFT JOIN Libro l ON l.id_libro = dm.fk_libro
-        GROUP BY m.id_multa
+        LEFT JOIN Libro l ON l.id_libro = dm.fk_libro        GROUP BY m.id_multa
         ORDER BY m.fecha_multa DESC
     `);
     return multas.map(m => ({
@@ -108,8 +106,7 @@ static async crearOAgregarDetalle(fk_cliente, tipo, monto, descripcion = null, f
         }
 
         const [existentes] = await conn.execute(
-            'SELECT id_multa FROM Multa WHERE fk_cliente = ? AND estado = false',
-            [clienteId]
+            'SELECT id_multa FROM Multa WHERE fk_cliente = ? AND estado = false',            [clienteId]
         );
 
         let id_multa;
@@ -117,21 +114,18 @@ static async crearOAgregarDetalle(fk_cliente, tipo, monto, descripcion = null, f
             id_multa = existentes[0].id_multa;
         } else {
             const [resultado] = await conn.execute(
-                'INSERT INTO Multa (fecha_multa, estado, total, fk_cliente) VALUES (?, false, 0, ?)',
-                [fechaHoy, clienteId]
+                'INSERT INTO Multa (fecha_multa, estado, total, fk_cliente) VALUES (?, false, 0, ?)',                [fechaHoy, clienteId]
             );
             id_multa = resultado.insertId;
         }
 
         await conn.execute(
-            `INSERT INTO DetalleMulta (fk_multa, tipo, descripcion, monto, fecha, fk_prestamo, fk_libro) 
-             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO DetalleMulta (fk_multa, tipo, descripcion, monto, fecha, fk_prestamo, fk_libro)              VALUES (?, ?, ?, ?, ?, ?, ?)`,
             [id_multa, tipoNormalizado, descripcionNormalizada, montoNumero, fechaHoy, prestamoId, libroId]
         );
 
         await conn.execute(
-            'UPDATE Multa SET total = (SELECT SUM(monto) FROM DetalleMulta WHERE fk_multa = ?) WHERE id_multa = ?',
-            [id_multa, id_multa]
+            'UPDATE Multa SET total = (SELECT SUM(monto) FROM DetalleMulta WHERE fk_multa = ?) WHERE id_multa = ?',            [id_multa, id_multa]
         );
 
         await conn.commit();
@@ -147,8 +141,7 @@ static async crearOAgregarDetalle(fk_cliente, tipo, monto, descripcion = null, f
 
     static async marcarPagada(id) {
         const [resultado] = await pool.execute(
-            'UPDATE Multa SET estado = true WHERE id_multa = ?', [id]
-        );
+            'UPDATE Multa SET estado = true WHERE id_multa = ?', [id]        );
         if (resultado.affectedRows === 0) {
             const error = new Error('Multa no encontrada');
             error.status = 404;
@@ -159,8 +152,7 @@ static async crearOAgregarDetalle(fk_cliente, tipo, monto, descripcion = null, f
 
     static async eliminar(id) {
         const [multa] = await pool.execute(
-            'SELECT estado FROM Multa WHERE id_multa = ?', [id]
-        );
+            'SELECT estado FROM Multa WHERE id_multa = ?', [id]        );
         if (multa.length === 0) {
             const error = new Error('Multa no encontrada');
             error.status = 404;
@@ -171,8 +163,7 @@ static async crearOAgregarDetalle(fk_cliente, tipo, monto, descripcion = null, f
             error.status = 400;
             throw error;
         }
-        await pool.execute('DELETE FROM Multa WHERE id_multa = ?', [id]);
-        return { message: 'Multa eliminada correctamente' };
+        await pool.execute('DELETE FROM Multa WHERE id_multa = ?', [id]);        return { message: 'Multa eliminada correctamente' };
     }
 
     static async procesarVencidos() {
@@ -185,22 +176,19 @@ static async crearOAgregarDetalle(fk_cliente, tipo, monto, descripcion = null, f
             const [vencidos] = await conn.execute(`
                 SELECT p.id_prestamo, p.fk_cliente, p.fecha_limite,
                        DATEDIFF(?, p.fecha_limite) AS dias_retraso
-                FROM Prestamos p
-                WHERE p.estado = 'Activo' AND p.fecha_limite < ?
+                FROM Prestamos p                WHERE p.estado = 'Activo' AND p.fecha_limite < ?
             `, [hoy, hoy]);
 
             for (const prestamo of vencidos) {
                 await conn.execute(
-                    "UPDATE Prestamos SET estado = 'Vencido' WHERE id_prestamo = ?",
-                    [prestamo.id_prestamo]
+                    "UPDATE Prestamos SET estado = 'Vencido' WHERE id_prestamo = ?",                    [prestamo.id_prestamo]
                 );
 
                 const monto = prestamo.dias_retraso * 1000;
                 const descripcion = `Retraso de ${prestamo.dias_retraso} día(s) — Préstamo #${prestamo.id_prestamo}`;
 
                 const [existentes] = await conn.execute(
-                    'SELECT id_multa FROM Multa WHERE fk_cliente = ? AND estado = false',
-                    [prestamo.fk_cliente]
+                    'SELECT id_multa FROM Multa WHERE fk_cliente = ? AND estado = false',                    [prestamo.fk_cliente]
                 );
 
                 let id_multa;
@@ -208,21 +196,18 @@ static async crearOAgregarDetalle(fk_cliente, tipo, monto, descripcion = null, f
                     id_multa = existentes[0].id_multa;
                 } else {
                     const [nuevaMulta] = await conn.execute(
-                        'INSERT INTO Multa (fecha_multa, estado, total, fk_cliente) VALUES (?, false, 0, ?)',
-                        [hoy, prestamo.fk_cliente]
+                        'INSERT INTO Multa (fecha_multa, estado, total, fk_cliente) VALUES (?, false, 0, ?)',                        [hoy, prestamo.fk_cliente]
                     );
                     id_multa = nuevaMulta.insertId;
                 }
 
                 // Ahora guarda fk_prestamo en el detalle
                 await conn.execute(
-                    'INSERT INTO DetalleMulta (fk_multa, tipo, descripcion, monto, fecha, fk_prestamo) VALUES (?, ?, ?, ?, ?, ?)',
-                    [id_multa, 'retraso', descripcion, monto, hoy, prestamo.id_prestamo]
+                    'INSERT INTO DetalleMulta (fk_multa, tipo, descripcion, monto, fecha, fk_prestamo) VALUES (?, ?, ?, ?, ?, ?)',                    [id_multa, 'retraso', descripcion, monto, hoy, prestamo.id_prestamo]
                 );
 
                 await conn.execute(
-                    'UPDATE Multa SET total = (SELECT SUM(monto) FROM DetalleMulta WHERE fk_multa = ?) WHERE id_multa = ?',
-                    [id_multa, id_multa]
+                    'UPDATE Multa SET total = (SELECT SUM(monto) FROM DetalleMulta WHERE fk_multa = ?) WHERE id_multa = ?',                    [id_multa, id_multa]
                 );
             }
 

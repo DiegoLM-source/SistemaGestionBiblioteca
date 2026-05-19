@@ -9,8 +9,7 @@ class AuthController {
 
             const resultado = await AuthService.registrarUsuario({
                 username,
-                password
-            });
+                password            });
 
             res.status(201).json(resultado);
 

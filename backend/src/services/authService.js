@@ -13,7 +13,6 @@ class AuthService {
         const username = normalizeText(datos.username);
         const password = String(datos.password || '');
         const fk_rol = 2; // USUARIO
-
         if (!isNonEmptyString(username) || username.length < 3 || username.length > 50) {
             throw createValidationError('El usuario debe tener entre 3 y 50 caracteres');
         }

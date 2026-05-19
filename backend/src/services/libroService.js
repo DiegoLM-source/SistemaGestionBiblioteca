@@ -43,15 +43,13 @@ class LibroService {
             SELECT l.*, c.nombre AS categoria, e.ubicacion AS estante
             FROM Libro l
             JOIN Categorias c ON l.fk_categoria = c.id_categoria
-            JOIN Estante e ON l.fk_estante = e.id_estante
-        `);
+            JOIN Estante e ON l.fk_estante = e.id_estante        `);
         return libros;
     }
 
     static async obtenerPorId(id) {
         const [libros] = await pool.execute(
-            'SELECT * FROM Libro WHERE id_libro = ?', [id]
-        );
+            'SELECT * FROM Libro WHERE id_libro = ?', [id]        );
         if (libros.length === 0) {
             const error = new Error('Libro no encontrado');
             error.status = 404;
@@ -63,8 +61,7 @@ class LibroService {
     static async crear(datos) {
         const { isbn, titulo, autor, editorial, descripcion, stock, fk_categoria, fk_estante } = this.validarDatos(datos);
         const [resultado] = await pool.execute(
-            `INSERT INTO Libro (isbn, titulo, autor, editorial, descripcion, stock, fk_categoria, fk_estante)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO Libro (isbn, titulo, autor, editorial, descripcion, stock, fk_categoria, fk_estante)             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
             [isbn, titulo, autor, editorial, descripcion, stock, fk_categoria, fk_estante]
         );
         return { id_libro: resultado.insertId, isbn, titulo, autor, editorial, descripcion, stock, fk_categoria, fk_estante };
@@ -73,8 +70,7 @@ class LibroService {
     static async actualizar(id, datos) {
         const { isbn, titulo, autor, editorial, descripcion, stock, fk_categoria, fk_estante } = this.validarDatos(datos);
         const [resultado] = await pool.execute(
-            `UPDATE Libro SET isbn=?, titulo=?, autor=?, editorial=?, descripcion=?, stock=?, fk_categoria=?, fk_estante=?
-             WHERE id_libro=?`,
+            `UPDATE Libro SET isbn=?, titulo=?, autor=?, editorial=?, descripcion=?, stock=?, fk_categoria=?, fk_estante=?             WHERE id_libro=?`,
             [isbn, titulo, autor, editorial, descripcion, stock, fk_categoria, fk_estante, id]
         );
         if (resultado.affectedRows === 0) {
@@ -87,8 +83,7 @@ class LibroService {
 
     static async eliminar(id) {
         const [resultado] = await pool.execute(
-            'DELETE FROM Libro WHERE id_libro = ?', [id]
-        );
+            'DELETE FROM Libro WHERE id_libro = ?', [id]        );
         if (resultado.affectedRows === 0) {
             const error = new Error('Libro no encontrado');
             error.status = 404;

@@ -6,13 +6,11 @@ import { getLibros } from "../services/libroService";
 import { getClientes } from "../services/clienteService";
 import { getPrestamos } from "../services/prestamoServices";
 import { getMultas } from "../services/multaService";
-import { isAdmin, logoutUser } from "../utils/auth";
-import "../styles/dashboard.css";
+import { isAdmin, logoutUser } from "../utils/auth";import "../styles/dashboard.css";
 
 function Dashboard() {
   const navigate = useNavigate();
-  const admin = isAdmin();
-  const [stats, setStats] = useState({
+  const admin = isAdmin();  const [stats, setStats] = useState({
     libros: 0, clientes: 0,
     prestamosActivos: 0, multasPendientes: 0
   });
@@ -26,8 +24,7 @@ function Dashboard() {
           getPrestamos(),
           getMultas(),
           admin ? getLibros() : Promise.resolve({ data: [] }),
-          admin ? getClientes() : Promise.resolve({ data: [] }),
-        ]);
+          admin ? getClientes() : Promise.resolve({ data: [] }),        ]);
         setStats({
           libros: libros.data.length,
           clientes: clientes.data.length,
@@ -68,8 +65,7 @@ function Dashboard() {
         {admin && <Link to="/Clientes"><div className="dash-sidebar-icon"><FiUser size={20} /></div></Link>}
         <Link to="/Prestamos"><div className="dash-sidebar-icon"><FaRegBookmark size={20} /></div></Link>
         <Link to="/multas"><div className="dash-sidebar-icon"><FaDollarSign size={20} /></div></Link>
-        {admin && <Link to="/reservas"><div className="dash-sidebar-icon"><FiClock size={20} /></div></Link>}
-        <div className="sidebar-spacer" />
+        {admin && <Link to="/reservas"><div className="dash-sidebar-icon"><FiClock size={20} /></div></Link>}        <div className="sidebar-spacer" />
         <div className="dash-sidebar-icon" onClick={handleLogout} title="Cerrar sesión" style={{cursor: "pointer"}}><FiLogOut size={20} /></div>
       </aside>
 
@@ -96,8 +92,7 @@ function Dashboard() {
               <span className="dash-stat-value">{stats.clientes}</span>
               <div className="dash-stat-bar" style={{ background: "#2e7d32" }} />
             </div>
-          )}
-          <div className="dash-stat-card">
+          )}          <div className="dash-stat-card">
             <span className="dash-stat-label">Préstamos activos</span>
             <span className="dash-stat-value">{stats.prestamosActivos}</span>
             <div className="dash-stat-bar" style={{ background: "#4F8EF7" }} />
