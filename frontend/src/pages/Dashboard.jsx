@@ -10,12 +10,14 @@ import { isAdmin, logoutUser } from "../utils/auth";import "../styles/dashboard.
 
 function Dashboard() {
   const navigate = useNavigate();
-  const admin = isAdmin();  const [stats, setStats] = useState({
+  const admin = isAdmin();
+  const [stats, setStats] = useState({
     libros: 0, clientes: 0,
     prestamosActivos: 0, multasPendientes: 0
   });
   const [prestamosRecientes, setPrestamosRecientes] = useState([]);
-  const [multasRecientes, setMultasRecientes]       = useState([]);
+  const [multasRecientes, setMultasRecientes] = useState([]);
+  const [librosDisponibles, setLibrosDisponibles] = useState([]);
 
   useEffect(() => {
     const cargarStats = async () => {
@@ -23,7 +25,7 @@ function Dashboard() {
         const [prestamos, multas, libros, clientes] = await Promise.all([
           getPrestamos(),
           getMultas(),
-          admin ? getLibros() : Promise.resolve({ data: [] }),
+          getLibros(),
           admin ? getClientes() : Promise.resolve({ data: [] }),        ]);
         setStats({
           libros: libros.data.length,
@@ -33,6 +35,7 @@ function Dashboard() {
         });
         setPrestamosRecientes(prestamos.data.slice(0, 5));
         setMultasRecientes(multas.data.slice(0, 5));
+        setLibrosDisponibles(libros.data.filter((l) => Number(l.stock) > 0).slice(0, 8));
       } catch (err) {
         console.error("Error cargando estadísticas:", err);
       }
@@ -105,6 +108,41 @@ function Dashboard() {
         </div>
 
         <div className="dash-cards">
+
+          {!admin && (
+            <div className="dash-card">
+              <div className="dash-card-header">
+                <span>Libros disponibles</span>
+                <Link to="/Prestamos" className="dash-card-link">Solicitar</Link>
+              </div>
+              <div className="dash-card-body">
+                {librosDisponibles.length === 0 ? (
+                  <div className="dash-empty">
+                    <span>No hay libros disponibles en este momento</span>
+                  </div>
+                ) : (
+                  <table className="dash-table">
+                    <thead>
+                      <tr>
+                        <th>Título</th>
+                        <th>Autor</th>
+                        <th>Stock</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {librosDisponibles.map((l) => (
+                        <tr key={l.id_libro}>
+                          <td>{l.titulo}</td>
+                          <td>{l.autor || "Sin autor"}</td>
+                          <td>{l.stock}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Préstamos recientes */}
           <div className="dash-card">

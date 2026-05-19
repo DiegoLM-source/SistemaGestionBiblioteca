@@ -4,12 +4,12 @@ const LibroController = require('../controllers/libroController');
 const { autorizarRoles } = require('../middlewares/authMiddleware');
 
 const ADMIN = 1;
+const USUARIO = 2;
 
-router.use(autorizarRoles(ADMIN));
-router.get('/', LibroController.obtenerTodos);
-router.get('/:id', LibroController.obtenerPorId);
-router.post('/', LibroController.crear);
-router.put('/:id', LibroController.actualizar);
-router.delete('/:id', LibroController.eliminar);
+router.get('/', autorizarRoles(ADMIN, USUARIO), LibroController.obtenerTodos);
+router.get('/:id', autorizarRoles(ADMIN, USUARIO), LibroController.obtenerPorId);
+router.post('/', autorizarRoles(ADMIN), LibroController.crear);
+router.put('/:id', autorizarRoles(ADMIN), LibroController.actualizar);
+router.delete('/:id', autorizarRoles(ADMIN), LibroController.eliminar);
 
 module.exports = router;
