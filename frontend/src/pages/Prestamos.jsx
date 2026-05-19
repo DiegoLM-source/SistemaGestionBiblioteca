@@ -352,48 +352,44 @@ function Prestamos() {
             {admin ? (
               <>
                 <label className="pr-form-label">Fecha préstamo</label>
-                <input className="lb-input" type="date" min={hoy} value={formAdmin.fecha} onChange={(e) => setFormAdmin({ ...formAdmin, fecha: e.target.value })} />
+                <input className="lb-input" type="date" min={hoy}
+                  value={formAdmin.fecha}
+                  onChange={e => setFormAdmin({ ...formAdmin, fecha: e.target.value })} />
+
                 <label className="pr-form-label">Fecha límite</label>
-                <input className="lb-input" type="date" min={formAdmin.fecha || hoy} value={formAdmin.fecha_limite} onChange={(e) => setFormAdmin({ ...formAdmin, fecha_limite: e.target.value })} />
+                <input className="lb-input" type="date" min={formAdmin.fecha || hoy}
+                  value={formAdmin.fecha_limite}
+                  onChange={e => setFormAdmin({ ...formAdmin, fecha_limite: e.target.value })} />
+
+                {/* Buscador de clientes */}
                 <label className="pr-form-label">Cliente</label>
-                <select className="lb-input" value={formAdmin.fk_cliente} onChange={(e) => setFormAdmin({ ...formAdmin, fk_cliente: e.target.value })}>
-                  <option value="">Seleccionar cliente...</option>
-                  {clientes.map((c) => <option key={c.id_cliente} value={c.id_cliente}>{c.nombre}</option>)}
-                </select>
+                <BuscadorCliente
+                  clientes={clientes}
+                  value={formAdmin.fk_cliente}
+                  onChange={id => setFormAdmin({ ...formAdmin, fk_cliente: id })}
+                />
+
+                {/* Buscador de libros */}
                 <label className="pr-form-label">Libros</label>
-                <div className="pr-libros-check">
-                  {libros.map((l) => {
-                    const seleccionado = formAdmin.libros.find((x) => x.id_libro === l.id_libro);
-                    return (
-                      <div key={l.id_libro} className="pr-check-item">
-                        <input type="checkbox" checked={!!seleccionado} onChange={() => toggleLibro(l.id_libro)} />
-                        <span className="pr-check-titulo">{l.titulo}</span>
-                        <span className="pr-check-stock">Stock: {l.stock}</span>
-                        {seleccionado && (
-                          <input type="number" className="pr-cantidad-input" min={1} max={l.stock} value={seleccionado.cantidad} onChange={(e) => setCantidad(l.id_libro, e.target.value)} />
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
+                <BuscadorLibros
+                  libros={libros}
+                  seleccionados={formAdmin.libros}
+                  onToggle={toggleLibro}
+                  onCantidad={setCantidad}
+                />
               </>
             ) : (
               <>
                 <label className="pr-form-label">Libro</label>
-                <select className="lb-input" value={formUsuario.id_libro} onChange={(e) => setFormUsuario({ ...formUsuario, id_libro: e.target.value })}>
-                  <option value="">Seleccionar libro...</option>
-                  {libros.map((l) => (
-                    <option key={l.id_libro} value={l.id_libro}>{l.titulo} (stock: {l.stock})</option>
-                  ))}
-                </select>
-                <label className="pr-form-label">Cantidad</label>
-                <input
-                  className="lb-input"
-                  type="number"
-                  min={1}
-                  value={formUsuario.cantidad}
-                  onChange={(e) => setFormUsuario({ ...formUsuario, cantidad: e.target.value })}
+                <BuscadorLibroSimple
+                  libros={libros}
+                  value={formUsuario.id_libro}
+                  onChange={id => setFormUsuario({ ...formUsuario, id_libro: id })}
                 />
+                <label className="pr-form-label">Cantidad</label>
+                <input className="lb-input" type="number" min={1}
+                  value={formUsuario.cantidad}
+                  onChange={e => setFormUsuario({ ...formUsuario, cantidad: e.target.value })} />
                 <p className="lb-help">Tu solicitud será revisada por un administrador.</p>
               </>
             )}

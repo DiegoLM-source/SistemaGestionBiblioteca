@@ -221,7 +221,7 @@ function Multas() {
                           <span className={`mt-tipo ${d.tipo}`}>{d.tipo}</span>
                           <div className="mt-detalle-info">
                             <span className="mt-detalle-desc">{d.descripcion}</span>
-                            {d.libro && <span className="mt-detalle-libro">📖 {d.libro}</span>}                          </div>
+                            {d.libro && <span className="mt-detalle-libro">{d.libro}</span>}                          </div>
                           <span className="mt-detalle-monto">${d.monto?.toLocaleString()}</span>
                         </div>
                       ))}
