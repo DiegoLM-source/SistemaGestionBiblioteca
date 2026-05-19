@@ -32,6 +32,142 @@ import "../styles/prestamos.css";
 const formVacioAdmin = { fecha: "", fecha_limite: "", fk_cliente: "", libros: [] };
 const formVacioUsuario = { id_libro: "", cantidad: 1 };
 
+function BuscadorCliente({ clientes, value, onChange }) {
+  const [query, setQuery] = useState("");
+  const [abierto, setAbierto] = useState(false);
+  const seleccionado = clientes.find(c => c.id_cliente === parseInt(value));
+  const filtrados = clientes.filter(c =>
+    c.nombre.toLowerCase().includes(query.toLowerCase()) ||
+    c.correo?.toLowerCase().includes(query.toLowerCase()) ||
+    c.telefono?.toLowerCase().includes(query.toLowerCase())
+  );
+
+  return (
+    <div className="buscador-wrap">
+      <input
+        className="lb-input"
+        type="text"
+        placeholder="Buscar cliente por nombre, correo o teléfono..."
+        value={seleccionado ? seleccionado.nombre : query}
+        onChange={e => { setQuery(e.target.value); onChange(""); setAbierto(true); }}
+        onFocus={() => setAbierto(true)}
+      />
+      {abierto && query && filtrados.length > 0 && (
+        <div className="buscador-dropdown">
+          {filtrados.slice(0, 8).map(c => (
+            <div key={c.id_cliente} className="buscador-item"
+              onClick={() => { onChange(c.id_cliente); setQuery(""); setAbierto(false); }}>
+              <span className="buscador-nombre">{c.nombre}</span>
+              <span className="buscador-sub">{c.correo} · {c.telefono}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      {seleccionado && (
+        <div className="buscador-seleccionado">
+          <span>✓ {seleccionado.nombre}</span>
+          <button type="button" onClick={() => { onChange(""); setQuery(""); }}>✕</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function BuscadorLibros({ libros, seleccionados, onToggle, onCantidad }) {
+  const [query, setQuery] = useState("");
+  const filtrados = libros.filter(l =>
+    l.titulo.toLowerCase().includes(query.toLowerCase()) ||
+    l.autor?.toLowerCase().includes(query.toLowerCase()) ||
+    l.isbn?.toLowerCase().includes(query.toLowerCase())
+  );
+
+  return (
+    <div className="buscador-libros-wrap">
+      <input
+        className="lb-input"
+        type="text"
+        placeholder="Buscar libro por título, autor o ISBN..."
+        value={query}
+        onChange={e => setQuery(e.target.value)}
+      />
+      <div className="pr-libros-check">
+        {(query ? filtrados : libros).slice(0, 20).map(l => {
+          const seleccionado = seleccionados.find(x => x.id_libro === l.id_libro);
+          return (
+            <div key={l.id_libro} className="pr-check-item">
+              <input type="checkbox" checked={!!seleccionado}
+                onChange={() => onToggle(l.id_libro)} />
+              <span className="pr-check-titulo">{l.titulo}</span>
+              <span className="pr-check-stock">Stock: {l.stock}</span>
+              {seleccionado && (
+                <input type="number" className="pr-cantidad-input"
+                  min={1} max={l.stock} value={seleccionado.cantidad}
+                  onChange={e => onCantidad(l.id_libro, e.target.value)} />
+              )}
+            </div>
+          );
+        })}
+        {query && filtrados.length === 0 && (
+          <span style={{ fontSize: 12, color: "#aaa", padding: "4px 8px" }}>Sin resultados</span>
+        )}
+      </div>
+      {seleccionados.length > 0 && (
+        <div className="buscador-seleccionados-chips">
+          {seleccionados.map(s => {
+            const libro = libros.find(l => l.id_libro === s.id_libro);
+            return (
+              <span key={s.id_libro} className="buscador-chip">
+                {libro?.titulo} (x{s.cantidad})
+                <button type="button" onClick={() => onToggle(s.id_libro)}>✕</button>
+              </span>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function BuscadorLibroSimple({ libros, value, onChange }) {
+  const [query, setQuery] = useState("");
+  const [abierto, setAbierto] = useState(false);
+  const seleccionado = libros.find(l => l.id_libro === parseInt(value));
+  const filtrados = libros.filter(l =>
+    l.titulo.toLowerCase().includes(query.toLowerCase()) ||
+    l.autor?.toLowerCase().includes(query.toLowerCase())
+  );
+
+  return (
+    <div className="buscador-wrap">
+      <input
+        className="lb-input"
+        type="text"
+        placeholder="Buscar libro por título o autor..."
+        value={seleccionado ? seleccionado.titulo : query}
+        onChange={e => { setQuery(e.target.value); onChange(""); setAbierto(true); }}
+        onFocus={() => setAbierto(true)}
+      />
+      {abierto && query && filtrados.length > 0 && (
+        <div className="buscador-dropdown">
+          {filtrados.slice(0, 8).map(l => (
+            <div key={l.id_libro} className="buscador-item"
+              onClick={() => { onChange(l.id_libro); setQuery(""); setAbierto(false); }}>
+              <span className="buscador-nombre">{l.titulo}</span>
+              <span className="buscador-sub">{l.autor} · Stock: {l.stock}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      {seleccionado && (
+        <div className="buscador-seleccionado">
+          <span>✓ {seleccionado.titulo}</span>
+          <button type="button" onClick={() => { onChange(""); setQuery(""); }}>✕</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Prestamos() {
   const navigate = useNavigate();
   const admin = isAdmin();
