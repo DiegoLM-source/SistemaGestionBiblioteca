@@ -1,5 +1,3 @@
-@import "./prestamos.css";
-
 .mt-toolbar {
   display: flex;
   align-items: center;
@@ -162,4 +160,84 @@
   border: none; border-radius: 8px;
   cursor: pointer; display: flex;
   align-items: center; justify-content: center;
+}
+
+.buscador-wrap { position: relative; margin-bottom: 10px; }
+.buscador-libros-wrap { margin-bottom: 10px; }
+
+.buscador-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #dde1e9;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  z-index: 100;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.buscador-item {
+  padding: 10px 14px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-bottom: 1px solid #f0f3f8;
+}
+
+.buscador-item:last-child { border-bottom: none; }
+.buscador-item:hover { background: #f7f9fc; }
+
+.buscador-nombre { font-size: 13px; font-weight: 500; color: #070A26; }
+.buscador-sub { font-size: 11px; color: #aaa; }
+
+.buscador-seleccionado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #e8f0fb;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  color: #070A26;
+  margin-top: 6px;
+}
+
+.buscador-seleccionado button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #aaa;
+  font-size: 14px;
+  padding: 0 4px;
+}
+
+.buscador-seleccionados-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.buscador-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #e8f0fb;
+  color: #070A26;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.buscador-chip button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #aaa;
+  font-size: 12px;
+  padding: 0;
 }
