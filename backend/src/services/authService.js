@@ -10,14 +10,13 @@ const {
 
 class AuthService {
 
-    static async registrarUsuario(datos) {
+   static async registrarUsuario(datos) {
     const { username, password, nombre, correo, telefono } = datos;
     const conn = await pool.getConnection();
 
     try {
         await conn.beginTransaction();
 
-        // Verificar si el username ya existe
         const [existentes] = await conn.execute(
             'SELECT id_user FROM usuarios WHERE username = ?',
             [username]
@@ -28,7 +27,6 @@ class AuthService {
             throw error;
         }
 
-        // Verificar si el correo ya existe
         const [correoExistente] = await conn.execute(
             'SELECT id_user FROM usuarios WHERE correo = ?',
             [correo]
@@ -39,35 +37,38 @@ class AuthService {
             throw error;
         }
 
-        // Crear el cliente
         const [resultadoCliente] = await conn.execute(
             'INSERT INTO cliente (nombre, correo, telefono) VALUES (?, ?, ?)',
             [nombre, correo, telefono || null]
         );
         const id_cliente = resultadoCliente.insertId;
 
-        // Hashear contraseña
         const saltRounds = 10;
         const passwordHash = await bcrypt.hash(password, saltRounds);
 
-        // Crear el usuario con fk_rol = 2 (USUARIO) y fk_cliente
         const [resultadoUsuario] = await conn.execute(
             `INSERT INTO usuarios (username, contrasena, correo, fk_rol, fk_cliente)
              VALUES (?, ?, ?, 2, ?)`,
             [username, passwordHash, correo, id_cliente]
         );
 
-        const nuevoUsuario = {
+        const token = generarToken({
             id: resultadoUsuario.insertId,
-            username,
-            fk_rol: 2,
-            fk_cliente: id_cliente
-        };
-
-        const token = generarToken(nuevoUsuario);
+            email: correo,
+            rol: 2
+        });
 
         await conn.commit();
-        return { usuario: nuevoUsuario, token };
+
+        return {
+            usuario: {
+                id: resultadoUsuario.insertId,
+                username,
+                fk_rol: 2,
+                fk_cliente: id_cliente
+            },
+            token
+        };
 
     } catch (error) {
         await conn.rollback();
