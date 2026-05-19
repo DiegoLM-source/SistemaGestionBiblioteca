@@ -15,6 +15,87 @@ const formVacio = {
   descripcion: "", fk_prestamo: "", fk_libro: "" 
 };
 
+function BuscadorCliente({ clientes, value, onChange }) {
+  const [query, setQuery] = useState("");
+  const [abierto, setAbierto] = useState(false);
+  const seleccionado = clientes.find(c => c.id_cliente === parseInt(value));
+  const filtrados = clientes.filter(c =>
+    c.nombre.toLowerCase().includes(query.toLowerCase()) ||
+    c.correo?.toLowerCase().includes(query.toLowerCase()) ||
+    c.telefono?.toLowerCase().includes(query.toLowerCase())
+  );
+
+  return (
+    <div className="buscador-wrap">
+      <input
+        className="lb-input"
+        type="text"
+        placeholder="Buscar cliente por nombre, correo o teléfono..."
+        value={seleccionado ? seleccionado.nombre : query}
+        onChange={e => { setQuery(e.target.value); onChange(""); setAbierto(true); }}
+        onFocus={() => setAbierto(true)}
+      />
+      {abierto && query && filtrados.length > 0 && (
+        <div className="buscador-dropdown">
+          {filtrados.slice(0, 8).map(c => (
+            <div key={c.id_cliente} className="buscador-item"
+              onClick={() => { onChange(c.id_cliente); setQuery(""); setAbierto(false); }}>
+              <span className="buscador-nombre">{c.nombre}</span>
+              <span className="buscador-sub">{c.correo} · {c.telefono}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      {seleccionado && (
+        <div className="buscador-seleccionado">
+          <span>✓ {seleccionado.nombre}</span>
+          <button type="button" onClick={() => { onChange(""); setQuery(""); }}>✕</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function BuscadorLibroSimple({ libros, value, onChange }) {
+  const [query, setQuery] = useState("");
+  const [abierto, setAbierto] = useState(false);
+  const seleccionado = libros.find(l => l.id_libro === parseInt(value));
+  const filtrados = libros.filter(l =>
+    l.titulo.toLowerCase().includes(query.toLowerCase()) ||
+    l.autor?.toLowerCase().includes(query.toLowerCase())
+  );
+
+  return (
+    <div className="buscador-wrap">
+      <input
+        className="lb-input"
+        type="text"
+        placeholder="Buscar libro por título o autor..."
+        value={seleccionado ? seleccionado.titulo : query}
+        onChange={e => { setQuery(e.target.value); onChange(""); setAbierto(true); }}
+        onFocus={() => setAbierto(true)}
+      />
+      {abierto && query && filtrados.length > 0 && (
+        <div className="buscador-dropdown">
+          {filtrados.slice(0, 8).map(l => (
+            <div key={l.id_libro} className="buscador-item"
+              onClick={() => { onChange(l.id_libro); setQuery(""); setAbierto(false); }}>
+              <span className="buscador-nombre">{l.titulo}</span>
+              <span className="buscador-sub">{l.autor} · Stock: {l.stock}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      {seleccionado && (
+        <div className="buscador-seleccionado">
+          <span>✓ {seleccionado.titulo}</span>
+          <button type="button" onClick={() => { onChange(""); setQuery(""); }}>✕</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Multas() {
   const navigate = useNavigate();
   const admin = isAdmin();  const [multas, setMultas] = useState([]);
@@ -250,18 +331,17 @@ function Multas() {
         </div>
       </div>
 
-      {modal && admin && (        <div className="lb-overlay">
+      {modal && admin && (
+        <div className="lb-overlay">
           <div className="lb-modal">
             <h3>Nueva multa</h3>
 
             <label className="pr-form-label">Cliente</label>
-            <select className="lb-input" value={form.fk_cliente}
-              onChange={e => setForm({ ...form, fk_cliente: e.target.value })}>
-              <option value="">Seleccionar cliente...</option>
-              {clientes.map(c => (
-                <option key={c.id_cliente} value={c.id_cliente}>{c.nombre}</option>
-              ))}
-            </select>
+            <BuscadorCliente
+              clientes={clientes}
+              value={form.fk_cliente}
+              onChange={id => setForm({ ...form, fk_cliente: id, fk_prestamo: "", fk_libro: "" })}
+            />
 
             <label className="pr-form-label">Tipo</label>
             <select className="lb-input" value={form.tipo}
@@ -286,13 +366,11 @@ function Multas() {
             {!form.fk_prestamo && (
               <>
                 <label className="pr-form-label">Libro asociado (opcional)</label>
-                <select className="lb-input" value={form.fk_libro}
-                  onChange={e => setForm({ ...form, fk_libro: e.target.value })}>
-                  <option value="">Sin libro asociado</option>
-                  {libros.map(l => (
-                    <option key={l.id_libro} value={l.id_libro}>{l.titulo}</option>
-                  ))}
-                </select>
+                <BuscadorLibroSimple
+                  libros={libros}
+                  value={form.fk_libro}
+                  onChange={id => setForm({ ...form, fk_libro: id })}
+                />
               </>
             )}
 

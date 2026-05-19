@@ -1,3 +1,5 @@
+@import "./prestamos.css";
+
 .mt-toolbar {
   display: flex;
   align-items: center;
