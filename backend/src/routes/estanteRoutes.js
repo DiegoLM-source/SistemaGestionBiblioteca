@@ -9,7 +9,8 @@ router.use(autorizarRoles(ADMIN));
 
 router.get('/', async (req, res) => {
     try {
-        const [rows] = await pool.execute('SELECT * FROM Estante');        res.json(rows);
+        const [rows] = await pool.execute('SELECT * FROM estante');
+        res.json(rows);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -20,7 +21,8 @@ router.post('/', async (req, res) => {
         const { descripcion, ubicacion } = req.body;
         if (!ubicacion) return res.status(400).json({ message: 'La ubicación es obligatoria' });
         const [resultado] = await pool.execute(
-            'INSERT INTO Estante (descripcion, ubicacion) VALUES (?, ?)',            [descripcion, ubicacion]
+            'INSERT INTO estante (descripcion, ubicacion) VALUES (?, ?)',
+            [descripcion, ubicacion]
         );
         res.status(201).json({ id_estante: resultado.insertId, descripcion, ubicacion });
     } catch (error) {

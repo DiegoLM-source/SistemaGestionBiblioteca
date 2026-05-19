@@ -1,11 +1,7 @@
-const express = require('express');
 const app = require('./app');
 
-const authRoutes = require('./routes/authRoutes');
+const port = Number(process.env.PORT || 4000);
 
-app.use(express.json());
-
-app.use('/api/auth', authRoutes);
-
-app.listen(4000, () => {
-    console.log('Servidor corriendo en puerto 4000');});
+app.listen(port, () => {
+  console.log(`Servidor corriendo en puerto ${port}`);
+});

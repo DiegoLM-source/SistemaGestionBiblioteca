@@ -1,18 +1,18 @@
 const mysql = require('mysql2/promise');
 require('dotenv').config();
 
-const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  port: process.env.DB_PORT || 3306,
+const dbConfig = {
+  host: process.env.DB_HOST || process.env.MYSQLHOST || process.env.MYSQL_HOST,
+  user: process.env.DB_USER || process.env.MYSQLUSER || process.env.MYSQL_USER,
+  password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD || process.env.MYSQL_PASS,
+  database: process.env.DB_NAME || process.env.MYSQLDATABASE || process.env.MYSQL_DB,
+  port: Number(process.env.DB_PORT || process.env.MYSQLPORT || process.env.MYSQL_PORT || 3306),
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
-});
+  queueLimit: 0,
+};
 
-
+const pool = mysql.createPool(dbConfig);
 
 (async () => {
   try {
@@ -21,7 +21,13 @@ const pool = mysql.createPool({
     connection.release();
   } catch (error) {
     console.error('Error al conectar a la base de datos:');
-    console.error(error.message);
+    console.error('Config:', {
+      host: dbConfig.host,
+      user: dbConfig.user,
+      database: dbConfig.database,
+      port: dbConfig.port,
+    });
+    console.error('Detalle:', error?.message || error);
     process.exit(1);
   }
 })();
