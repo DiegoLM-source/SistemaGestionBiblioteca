@@ -1,26 +1,51 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FiSearch, FiPlus, FiTrash2, FiGrid, FiBook, FiUser, FiClock, FiLogOut, FiCheckCircle, FiXCircle, FiAlertCircle } from "react-icons/fi";
+import {
+  FiSearch,
+  FiPlus,
+  FiTrash2,
+  FiGrid,
+  FiBook,
+  FiUser,
+  FiClock,
+  FiLogOut,
+  FiCheckCircle,
+  FiXCircle,
+  FiAlertCircle,
+} from "react-icons/fi";
 import { FaRegBookmark, FaDollarSign } from "react-icons/fa6";
-import { getPrestamos, createPrestamo, cambiarEstado, deletePrestamo } from "../services/prestamoServices";
+import {
+  getPrestamos,
+  createPrestamo,
+  cambiarEstado,
+  deletePrestamo,
+  getMisSolicitudes,
+  crearSolicitudPrestamo,
+} from "../services/prestamoServices";
 import { getClientes } from "../services/clienteService";
 import { getLibros } from "../services/libroService";
 import { getCurrentDateString } from "../utils/date";
-import { isAdmin, logoutUser } from "../utils/auth";import "../styles/dashboard.css";
+import { isAdmin, logoutUser } from "../utils/auth";
+import "../styles/dashboard.css";
 import "../styles/prestamos.css";
 
-const formVacio = { fecha: "", fecha_limite: "", fk_cliente: "", libros: [] };
+const formVacioAdmin = { fecha: "", fecha_limite: "", fk_cliente: "", libros: [] };
+const formVacioUsuario = { id_libro: "", cantidad: 1 };
 
 function Prestamos() {
   const navigate = useNavigate();
-  const admin = isAdmin();  const hoy = getCurrentDateString();
+  const admin = isAdmin();
+  const hoy = getCurrentDateString();
+
   const [prestamos, setPrestamos] = useState([]);
+  const [solicitudes, setSolicitudes] = useState([]);
   const [clientes, setClientes] = useState([]);
   const [libros, setLibros] = useState([]);
   const [busqueda, setBusqueda] = useState("");
   const [filtro, setFiltro] = useState("todos");
   const [modal, setModal] = useState(false);
-  const [form, setForm] = useState(formVacio);
+  const [formAdmin, setFormAdmin] = useState(formVacioAdmin);
+  const [formUsuario, setFormUsuario] = useState(formVacioUsuario);
   const [error, setError] = useState("");
   const [pagina, setPagina] = useState(1);
   const porPagina = 6;
@@ -28,10 +53,14 @@ function Prestamos() {
   useEffect(() => {
     cargarPrestamos();
     if (admin) {
-      getClientes().then(r => setClientes(r.data));
-      getLibros().then(r => setLibros(r.data));
+      getClientes().then((r) => setClientes(r.data));
+      getLibros().then((r) => setLibros(r.data));
+    } else {
+      getLibros().then((r) => setLibros(r.data));
+      cargarSolicitudes();
     }
   }, [admin]);
+
   const cargarPrestamos = async () => {
     try {
       const res = await getPrestamos();
@@ -41,60 +70,91 @@ function Prestamos() {
     }
   };
 
-  const prestamosFiltrados = prestamos.filter(p => {
+  const cargarSolicitudes = async () => {
+    try {
+      const res = await getMisSolicitudes();
+      setSolicitudes(res.data);
+    } catch (err) {
+      console.error("Error cargando solicitudes:", err);
+    }
+  };
+
+  const prestamosFiltrados = prestamos.filter((p) => {
     const coincideBusqueda =
       p.cliente_nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
       p.libros?.toLowerCase().includes(busqueda.toLowerCase());
-    const coincideFiltro =
-      filtro === "todos" ||
-      p.estado?.toLowerCase() === filtro.toLowerCase();
+    const coincideFiltro = filtro === "todos" || p.estado?.toLowerCase() === filtro.toLowerCase();
     return coincideBusqueda && coincideFiltro;
   });
 
   const totalPaginas = Math.ceil(prestamosFiltrados.length / porPagina);
   const prestamosPagina = prestamosFiltrados.slice((pagina - 1) * porPagina, pagina * porPagina);
+
   const toggleLibro = (id_libro) => {
-    setForm(f => {
-        const existe = f.libros.find(l => l.id_libro === id_libro);
-        if (existe) {
-            return { ...f, libros: f.libros.filter(l => l.id_libro !== id_libro) };
-        } else {
-            return { ...f, libros: [...f.libros, { id_libro, cantidad: 1 }] };
-        }
+    setFormAdmin((f) => {
+      const existe = f.libros.find((l) => l.id_libro === id_libro);
+      if (existe) {
+        return { ...f, libros: f.libros.filter((l) => l.id_libro !== id_libro) };
+      }
+      return { ...f, libros: [...f.libros, { id_libro, cantidad: 1 }] };
     });
   };
 
   const setCantidad = (id_libro, cantidad) => {
-    setForm(f => ({
-        ...f,
-        libros: f.libros.map(l =>
-        l.id_libro === id_libro ? { ...l, cantidad: parseInt(cantidad) || 1 } : l
-        )
+    setFormAdmin((f) => ({
+      ...f,
+      libros: f.libros.map((l) =>
+        l.id_libro === id_libro ? { ...l, cantidad: parseInt(cantidad, 10) || 1 } : l
+      ),
     }));
   };
 
-  const guardar = async () => {
-    if (!form.fecha || !form.fecha_limite || !form.fk_cliente || form.libros.length === 0) {
+  const guardarAdmin = async () => {
+    if (
+      !formAdmin.fecha ||
+      !formAdmin.fecha_limite ||
+      !formAdmin.fk_cliente ||
+      formAdmin.libros.length === 0
+    ) {
       setError("Todos los campos son obligatorios y debes seleccionar al menos un libro");
       return;
     }
-    if (form.fecha_limite < hoy) {
+
+    if (formAdmin.fecha_limite < hoy) {
       setError("La fecha de devolución no puede ser anterior a hoy");
       return;
     }
-    if (form.fecha_limite < form.fecha) {
+
+    if (formAdmin.fecha_limite < formAdmin.fecha) {
       setError("La fecha de devolución no puede ser anterior a la fecha del préstamo");
       return;
     }
+
     try {
       const token = localStorage.getItem("token");
       const payload = JSON.parse(atob(token.split(".")[1]));
-      await createPrestamo({ ...form, fk_user: payload.id });
+      await createPrestamo({ ...formAdmin, fk_user: payload.id });
       setModal(false);
-      setForm(formVacio);
+      setFormAdmin(formVacioAdmin);
       cargarPrestamos();
     } catch (err) {
       setError(err.response?.data?.message || "Error al guardar");
+    }
+  };
+
+  const guardarSolicitudUsuario = async () => {
+    if (!formUsuario.id_libro || !formUsuario.cantidad) {
+      setError("Debes seleccionar libro y cantidad");
+      return;
+    }
+
+    try {
+      await crearSolicitudPrestamo(formUsuario);
+      setModal(false);
+      setFormUsuario(formVacioUsuario);
+      cargarSolicitudes();
+    } catch (err) {
+      setError(err.response?.data?.message || "Error al enviar solicitud");
     }
   };
 
@@ -136,52 +196,32 @@ function Prestamos() {
   return (
     <div className="dash-wrap">
       <aside className="dash-sidebar">
-        <Link to="/dashboard">
-          <div className="dash-sidebar-icon">
-              <FiGrid size={20} />
-          </div>
-        </Link>
-        {admin && (
-          <Link to="/books">
-            <div className="dash-sidebar-icon">
-              <FiBook size={20} />
-            </div>
-          </Link>
-        )}
-        {admin && (
-          <Link to="/Clientes">
-            <div className="dash-sidebar-icon">
-              <FiUser size={20} />
-            </div>
-          </Link>
-        )}          <div className="dash-sidebar-icon active">
-            <FaRegBookmark size={20}/>
-          </div>
-        <Link to="/multas">
-          <div className="dash-sidebar-icon">
-            <FaDollarSign size={20} />
-          </div>
-        </Link>
-        {admin && (
-          <Link to="/reservas">
-            <div className="dash-sidebar-icon">
-              <FiClock size={20} />
-            </div>
-          </Link>
-        )}        <div className="sidebar-spacer" />
+        <Link to="/dashboard"><div className="dash-sidebar-icon"><FiGrid size={20} /></div></Link>
+        {admin && <Link to="/books"><div className="dash-sidebar-icon"><FiBook size={20} /></div></Link>}
+        {admin && <Link to="/Clientes"><div className="dash-sidebar-icon"><FiUser size={20} /></div></Link>}
+        <div className="dash-sidebar-icon active"><FaRegBookmark size={20} /></div>
+        <Link to="/multas"><div className="dash-sidebar-icon"><FaDollarSign size={20} /></div></Link>
+        {admin && <Link to="/reservas"><div className="dash-sidebar-icon"><FiClock size={20} /></div></Link>}
+        <div className="sidebar-spacer" />
         <div className="dash-sidebar-icon" onClick={handleLogout} title="Cerrar sesión" style={{ cursor: "pointer" }}>
           <FiLogOut size={20} />
         </div>
       </aside>
 
       <div className="dash-main">
-
         <div className="pr-topbar">
-          <h2 className="pr-title">Préstamos</h2>
+          <h2 className="pr-title">{admin ? "Préstamos" : "Mis préstamos"}</h2>
           <div className="dash-search">
             <FiSearch size={15} color="#aaa" />
-            <input type="text" placeholder="Buscar..."
-              value={busqueda} onChange={e => { setBusqueda(e.target.value); setPagina(1); }} />
+            <input
+              type="text"
+              placeholder="Buscar..."
+              value={busqueda}
+              onChange={(e) => {
+                setBusqueda(e.target.value);
+                setPagina(1);
+              }}
+            />
           </div>
         </div>
 
@@ -207,38 +247,70 @@ function Prestamos() {
               <FiXCircle size={14} /> Vencido
             </button>
           </div>
-          {admin && (
-            <button className="pr-add-btn" onClick={() => { setForm(formVacio); setError(""); setModal(true); }}>
-              <FiPlus size={16} />
-            </button>
-          )}        </div>
+          <button
+            className="pr-add-btn"
+            onClick={() => {
+              setError("");
+              setModal(true);
+            }}
+          >
+            <FiPlus size={16} />
+          </button>
+        </div>
+
+        {!admin && (
+          <div className="dash-card" style={{ marginBottom: 16 }}>
+            <div className="dash-card-header"><span>Mis solicitudes</span></div>
+            <div className="dash-card-body">
+              {solicitudes.length === 0 ? (
+                <div className="dash-empty"><span>No tienes solicitudes</span></div>
+              ) : (
+                <table className="dash-table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Libro</th>
+                      <th>Estado</th>
+                      <th>Recoger el</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {solicitudes.map((s) => (
+                      <tr key={s.id_solicitud}>
+                        <td>{s.id_solicitud}</td>
+                        <td>{s.libro_titulo}</td>
+                        <td>{s.estado}</td>
+                        <td>{s.fecha_recogida ? s.fecha_recogida.slice(0, 10) : "Pendiente por definir"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className="pr-grid-wrap">
           {prestamosFiltrados.length === 0 ? (
             <div className="pr-empty">
               <FaRegBookmark size={32} className="pr-empty-icon" />
-              <span>No hay préstamos
-                {filtro !== "todos" ? ` con estado "${filtro}"` : " registrados"}
+              <span>
+                No hay préstamos{filtro !== "todos" ? ` con estado "${filtro}"` : " registrados"}
               </span>
-              {filtro === "todos" && admin && (
-                <button className="lb-empty-cta"
-                  onClick={() => { setForm(formVacio); setError(""); setModal(true); }}>                  + Crear primer préstamo
-                </button>
-              )}
             </div>
           ) : (
             <div className="pr-grid">
-              {prestamosPagina.map(p => (
+              {prestamosPagina.map((p) => (
                 <div key={p.id_prestamo} className={`pr-card ${p.estado?.toLowerCase()}`}>
                   <div className="pr-card-header">
                     <span className="pr-card-num">Préstamo #{p.id_prestamo}</span>
                     {estadoBadge(p.estado)}
                   </div>
                   <div className="pr-card-body">
-                    <div className="pr-field"><span className="pr-label">Fecha</span><span>{p.fecha?.slice(0,10)}</span></div>
-                    <div className="pr-field"><span className="pr-label">Fecha límite</span><span>{p.fecha_limite?.slice(0,10)}</span></div>
-                    <div className="pr-field"><span className="pr-label">Cliente</span><span>{p.cliente_nombre}</span></div>
-                    <div className="pr-field"><span className="pr-label">Teléfono</span><span>{p.cliente_telefono}</span></div>
+                    <div className="pr-field"><span className="pr-label">Fecha</span><span>{p.fecha?.slice(0, 10)}</span></div>
+                    <div className="pr-field"><span className="pr-label">Fecha límite</span><span>{p.fecha_limite?.slice(0, 10)}</span></div>
+                    {admin && <div className="pr-field"><span className="pr-label">Cliente</span><span>{p.cliente_nombre}</span></div>}
+                    {admin && <div className="pr-field"><span className="pr-label">Teléfono</span><span>{p.cliente_telefono}</span></div>}
                     <div className="pr-field"><span className="pr-label">Libro(s)</span><span className="pr-libros">{p.libros}</span></div>
                   </div>
                   <div className="pr-card-footer">
@@ -250,10 +322,11 @@ function Prestamos() {
                       {p.estado === "Devuelto" ? "✓ Devuelto" : "Marcar como devuelto"}
                     </button>
                     {admin && (
-                      <button className="pr-del-btn" onClick={() => eliminar(p.id_prestamo)}>
+                      <button className="pr-del-btn" onClick={() => eliminar(p.id_prestamo, p.estado)}>
                         <FiTrash2 size={14} />
                       </button>
-                    )}                  </div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -262,63 +335,73 @@ function Prestamos() {
 
         {totalPaginas > 1 && (
           <div className="pr-pagination">
-            <button onClick={() => setPagina(p => Math.max(1, p - 1))} disabled={pagina === 1}>‹</button>
+            <button onClick={() => setPagina((p) => Math.max(1, p - 1))} disabled={pagina === 1}>‹</button>
             {Array.from({ length: totalPaginas }, (_, i) => (
-              <button key={i+1} className={pagina === i+1 ? "active" : ""} onClick={() => setPagina(i+1)}>{i+1}</button>
+              <button key={i + 1} className={pagina === i + 1 ? "active" : ""} onClick={() => setPagina(i + 1)}>{i + 1}</button>
             ))}
-            <button onClick={() => setPagina(p => Math.min(totalPaginas, p + 1))} disabled={pagina === totalPaginas}>›</button>
+            <button onClick={() => setPagina((p) => Math.min(totalPaginas, p + 1))} disabled={pagina === totalPaginas}>›</button>
           </div>
         )}
       </div>
 
-      {modal && admin && (        <div className="lb-overlay">
+      {modal && (
+        <div className="lb-overlay">
           <div className="lb-modal">
-            <h3>Nuevo préstamo</h3>
-            <label className="pr-form-label">Fecha préstamo</label>
-            <input className="lb-input" type="date"
-              min={hoy}
-              value={form.fecha} onChange={e => setForm({ ...form, fecha: e.target.value })} />
-            <label className="pr-form-label">Fecha límite</label>
-            <input className="lb-input" type="date"
-              min={form.fecha || hoy}
-              value={form.fecha_limite} onChange={e => setForm({ ...form, fecha_limite: e.target.value })} />
-            <label className="pr-form-label">Cliente</label>
-            <select className="lb-input"
-              value={form.fk_cliente} onChange={e => setForm({ ...form, fk_cliente: e.target.value })}>
-              <option value="">Seleccionar cliente...</option>
-              {clientes.map(c => (                <option key={c.id_cliente} value={c.id_cliente}>{c.nombre}</option>
-              ))}
-            </select>
-            <label className="pr-form-label">Libros</label>
-            <div className="pr-libros-check">
-            {libros.map(l => {                const seleccionado = form.libros.find(x => x.id_libro === l.id_libro);
-                return (
-                <div key={l.id_libro} className="pr-check-item">
-                    <input
-                    type="checkbox"
-                    checked={!!seleccionado}
-                    onChange={() => toggleLibro(l.id_libro)}
-                    />
-                    <span className="pr-check-titulo">{l.titulo}</span>
-                    <span className="pr-check-stock">Stock: {l.stock}</span>
-                    {seleccionado && (
-                    <input
-                        type="number"
-                        className="pr-cantidad-input"
-                        min={1}
-                        max={l.stock}
-                        value={seleccionado.cantidad}
-                        onChange={e => setCantidad(l.id_libro, e.target.value)}
-                    />
-                    )}
+            <h3>{admin ? "Nuevo préstamo" : "Solicitar préstamo"}</h3>
+
+            {admin ? (
+              <>
+                <label className="pr-form-label">Fecha préstamo</label>
+                <input className="lb-input" type="date" min={hoy} value={formAdmin.fecha} onChange={(e) => setFormAdmin({ ...formAdmin, fecha: e.target.value })} />
+                <label className="pr-form-label">Fecha límite</label>
+                <input className="lb-input" type="date" min={formAdmin.fecha || hoy} value={formAdmin.fecha_limite} onChange={(e) => setFormAdmin({ ...formAdmin, fecha_limite: e.target.value })} />
+                <label className="pr-form-label">Cliente</label>
+                <select className="lb-input" value={formAdmin.fk_cliente} onChange={(e) => setFormAdmin({ ...formAdmin, fk_cliente: e.target.value })}>
+                  <option value="">Seleccionar cliente...</option>
+                  {clientes.map((c) => <option key={c.id_cliente} value={c.id_cliente}>{c.nombre}</option>)}
+                </select>
+                <label className="pr-form-label">Libros</label>
+                <div className="pr-libros-check">
+                  {libros.map((l) => {
+                    const seleccionado = formAdmin.libros.find((x) => x.id_libro === l.id_libro);
+                    return (
+                      <div key={l.id_libro} className="pr-check-item">
+                        <input type="checkbox" checked={!!seleccionado} onChange={() => toggleLibro(l.id_libro)} />
+                        <span className="pr-check-titulo">{l.titulo}</span>
+                        <span className="pr-check-stock">Stock: {l.stock}</span>
+                        {seleccionado && (
+                          <input type="number" className="pr-cantidad-input" min={1} max={l.stock} value={seleccionado.cantidad} onChange={(e) => setCantidad(l.id_libro, e.target.value)} />
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
-                );
-            })}
-            </div>
+              </>
+            ) : (
+              <>
+                <label className="pr-form-label">Libro</label>
+                <select className="lb-input" value={formUsuario.id_libro} onChange={(e) => setFormUsuario({ ...formUsuario, id_libro: e.target.value })}>
+                  <option value="">Seleccionar libro...</option>
+                  {libros.map((l) => (
+                    <option key={l.id_libro} value={l.id_libro}>{l.titulo} (stock: {l.stock})</option>
+                  ))}
+                </select>
+                <label className="pr-form-label">Cantidad</label>
+                <input
+                  className="lb-input"
+                  type="number"
+                  min={1}
+                  value={formUsuario.cantidad}
+                  onChange={(e) => setFormUsuario({ ...formUsuario, cantidad: e.target.value })}
+                />
+                <p className="lb-help">Tu solicitud será revisada por un administrador.</p>
+              </>
+            )}
+
             {error && <p className="lb-error">{error}</p>}
             <div className="lb-modal-btns">
               <button className="lb-cancel" onClick={() => setModal(false)}>Cancelar</button>
-              <button className="lb-save" onClick={guardar}>Guardar</button>
+              <button className="lb-save" onClick={admin ? guardarAdmin : guardarSolicitudUsuario}>Guardar</button>
             </div>
           </div>
         </div>

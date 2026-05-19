@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const pool = require('../config/db');
 const { generarToken } = require('../utils/jwt');
+const ClienteUsuarioService = require('./clienteUsuarioService');
 const {
     normalizeText,
     isNonEmptyString,
@@ -49,6 +50,12 @@ class AuthService {
             username,
             fk_rol
         };
+
+        await ClienteUsuarioService.getOrCreateClienteIdByUser(
+            resultado.insertId,
+            username,
+            null
+        );
 
         const token = generarToken({
             id: resultado.insertId,

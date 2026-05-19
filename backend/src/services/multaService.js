@@ -6,7 +6,15 @@ const {
 } = require('../utils/validators');
 
 class MultaService {
-  static async obtenerTodos() {
+  static async obtenerTodos({ rol, userId }) {
+    const params = [];
+    let where = '';
+
+    if (Number(rol) === 2) {
+      where = 'WHERE c.fk_user = ?';
+      params.push(userId);
+    }
+
     const [multas] = await pool.execute(`
       SELECT
         m.*,
@@ -36,9 +44,10 @@ class MultaService {
       JOIN cliente c ON m.fk_cliente = c.id_cliente
       LEFT JOIN detallemulta dm ON dm.fk_multa = m.id_multa
       LEFT JOIN libro l ON l.id_libro = dm.fk_libro
+      ${where}
       GROUP BY m.id_multa
       ORDER BY m.fecha_multa DESC
-    `);
+    `, params);
 
     return multas.map((m) => ({
       ...m,

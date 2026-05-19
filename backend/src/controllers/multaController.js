@@ -4,7 +4,10 @@ class MultaController {
 
     static async obtenerTodos(req, res) {
         try {
-            const multas = await MultaService.obtenerTodos();
+            const multas = await MultaService.obtenerTodos({
+                rol: req.usuario?.rol,
+                userId: req.usuario?.id
+            });
             res.json(multas);
         } catch (error) {
             res.status(error.status || 500).json({ message: error.message });

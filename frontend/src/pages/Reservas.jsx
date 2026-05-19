@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FiSearch, FiPlus, FiBook, FiUser, FiClock, FiLogOut, FiGrid, FiCheckCircle, FiXCircle } from "react-icons/fi";
 import { FaRegBookmark, FaDollarSign } from "react-icons/fa6";
 import { getReservas, createReserva, reclamarReserva, cancelarReserva } from "../services/reservaService";
+import { getSolicitudesAdmin, aprobarSolicitudPrestamo } from "../services/prestamoServices";
 import { getClientes } from "../services/clienteService";
 import { getLibros } from "../services/libroService";
 import { logoutUser } from "../utils/auth";
@@ -15,12 +16,16 @@ const formReclamoVacio = { id_reserva: null, fecha_limite: "" };
 function Reservas() {
   const navigate = useNavigate();
   const [reservas, setReservas] = useState([]);
+  const [solicitudes, setSolicitudes] = useState([]);
   const [clientes, setClientes] = useState([]);
   const [libros, setLibros] = useState([]);
   const [busqueda, setBusqueda] = useState("");
   const [filtro, setFiltro] = useState("todos");
   const [modalCrear, setModalCrear] = useState(false);
   const [modalReclamar, setModalReclamar] = useState(false);
+  const [modalAprobar, setModalAprobar] = useState(false);
+  const [idSolicitud, setIdSolicitud] = useState(null);
+  const [fechaRecogida, setFechaRecogida] = useState("");
   const [form, setForm] = useState(formVacio);
   const [formReclamo, setFormReclamo] = useState(formReclamoVacio);
   const [error, setError] = useState("");
@@ -29,6 +34,7 @@ function Reservas() {
 
   useEffect(() => {
     cargarReservas();
+    cargarSolicitudes();
     getClientes().then((r) => setClientes(r.data));
     getLibros().then((r) => setLibros(r.data));
   }, []);
@@ -42,13 +48,21 @@ function Reservas() {
     }
   };
 
+  const cargarSolicitudes = async () => {
+    try {
+      const res = await getSolicitudesAdmin();
+      setSolicitudes(res.data);
+    } catch (err) {
+      console.error("Error cargando solicitudes:", err);
+    }
+  };
+
   const reservasFiltradas = reservas.filter((reserva) => {
     const texto = busqueda.toLowerCase();
     const coincideBusqueda =
       reserva.cliente_nombre?.toLowerCase().includes(texto) ||
       reserva.libro_titulo?.toLowerCase().includes(texto);
-    const coincideFiltro =
-      filtro === "todos" || reserva.estado?.toLowerCase() === filtro.toLowerCase();
+    const coincideFiltro = filtro === "todos" || reserva.estado?.toLowerCase() === filtro.toLowerCase();
     return coincideBusqueda && coincideFiltro;
   });
 
@@ -119,6 +133,31 @@ function Reservas() {
     }
   };
 
+  const abrirAprobarSolicitud = (id) => {
+    setIdSolicitud(id);
+    setFechaRecogida("");
+    setError("");
+    setModalAprobar(true);
+  };
+
+  const aprobarSolicitud = async () => {
+    if (!fechaRecogida) {
+      setError("Debes definir una fecha de recogida");
+      return;
+    }
+
+    try {
+      await aprobarSolicitudPrestamo(idSolicitud, { fecha_recogida: fechaRecogida });
+      setModalAprobar(false);
+      setIdSolicitud(null);
+      setFechaRecogida("");
+      cargarSolicitudes();
+      cargarReservas();
+    } catch (err) {
+      setError(err.response?.data?.message || "Error al aprobar solicitud");
+    }
+  };
+
   const cambiarFiltro = (nuevo) => {
     setFiltro(nuevo);
     setPagina(1);
@@ -137,6 +176,8 @@ function Reservas() {
     return <span className={`rs-badge ${clases[estado] || ""}`}>{estado}</span>;
   };
 
+  const solicitudesPendientes = solicitudes.filter((s) => s.estado === "Pendiente");
+
   return (
     <div className="dash-wrap">
       <aside className="dash-sidebar">
@@ -151,6 +192,42 @@ function Reservas() {
       </aside>
 
       <div className="dash-main">
+        <div className="dash-card" style={{ marginBottom: 16 }}>
+          <div className="dash-card-header"><span>Solicitudes de préstamo pendientes</span></div>
+          <div className="dash-card-body">
+            {solicitudesPendientes.length === 0 ? (
+              <div className="dash-empty"><span>No hay solicitudes pendientes</span></div>
+            ) : (
+              <table className="dash-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Cliente</th>
+                    <th>Libro</th>
+                    <th>Cantidad</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {solicitudesPendientes.map((s) => (
+                    <tr key={s.id_solicitud}>
+                      <td>{s.id_solicitud}</td>
+                      <td>{s.cliente_nombre}</td>
+                      <td>{s.libro_titulo}</td>
+                      <td>{s.cantidad}</td>
+                      <td>
+                        <button className="lb-save" onClick={() => abrirAprobarSolicitud(s.id_solicitud)}>
+                          Aprobar y pasar a reserva
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
+
         <div className="rs-topbar">
           <h2 className="rs-title">Reservas</h2>
           <div className="dash-search">
@@ -170,29 +247,18 @@ function Reservas() {
         <div className="rs-toolbar">
           <div className="rs-filtros">
             <span className="rs-filtros-label">Filtrar por:</span>
-            <button
-              className={`rs-filtro-btn filtro-reservado ${filtro === "Reservado" ? "selected" : ""}`}
-              onClick={() => cambiarFiltro(filtro === "Reservado" ? "todos" : "Reservado")}
-            >
+            <button className={`rs-filtro-btn filtro-reservado ${filtro === "Reservado" ? "selected" : ""}`} onClick={() => cambiarFiltro(filtro === "Reservado" ? "todos" : "Reservado")}>
               <FiClock size={14} /> Reservado
             </button>
-            <button
-              className={`rs-filtro-btn filtro-reclamado ${filtro === "Reclamado" ? "selected" : ""}`}
-              onClick={() => cambiarFiltro(filtro === "Reclamado" ? "todos" : "Reclamado")}
-            >
+            <button className={`rs-filtro-btn filtro-reclamado ${filtro === "Reclamado" ? "selected" : ""}`} onClick={() => cambiarFiltro(filtro === "Reclamado" ? "todos" : "Reclamado")}>
               <FiCheckCircle size={14} /> Reclamado
             </button>
-            <button
-              className={`rs-filtro-btn filtro-cancelado ${filtro === "Cancelado" ? "selected" : ""}`}
-              onClick={() => cambiarFiltro(filtro === "Cancelado" ? "todos" : "Cancelado")}
-            >
+            <button className={`rs-filtro-btn filtro-cancelado ${filtro === "Cancelado" ? "selected" : ""}`} onClick={() => cambiarFiltro(filtro === "Cancelado" ? "todos" : "Cancelado")}>
               <FiXCircle size={14} /> Cancelado
             </button>
           </div>
 
-          <button className="rs-add-btn" onClick={abrirCrear}>
-            <FiPlus size={16} />
-          </button>
+          <button className="rs-add-btn" onClick={abrirCrear}><FiPlus size={16} /></button>
         </div>
 
         <div className="rs-grid-wrap">
@@ -200,11 +266,7 @@ function Reservas() {
             <div className="rs-empty">
               <FiClock size={32} className="rs-empty-icon" />
               <span>No hay reservas{filtro !== "todos" ? ` con estado "${filtro}"` : " registradas"}</span>
-              {filtro === "todos" && (
-                <button className="lb-empty-cta" onClick={abrirCrear}>
-                  + Crear primera reserva
-                </button>
-              )}
+              {filtro === "todos" && <button className="lb-empty-cta" onClick={abrirCrear}>+ Crear primera reserva</button>}
             </div>
           ) : (
             <div className="rs-grid">
@@ -217,11 +279,11 @@ function Reservas() {
 
                   <div className="rs-card-body">
                     <div className="rs-field"><span className="rs-label">Fecha reserva</span><span>{reserva.fecha_reserva?.slice(0, 10)}</span></div>
+                    <div className="rs-field"><span className="rs-label">Recoger el</span><span>{reserva.fecha_reclamo?.slice(0, 10) || "No definida"}</span></div>
                     <div className="rs-field"><span className="rs-label">Cliente</span><span>{reserva.cliente_nombre}</span></div>
                     <div className="rs-field"><span className="rs-label">Telefono</span><span>{reserva.cliente_telefono}</span></div>
                     <div className="rs-field"><span className="rs-label">Libro</span><span className="rs-libro">{reserva.libro_titulo}</span></div>
                     <div className="rs-field"><span className="rs-label">Autor</span><span>{reserva.libro_autor || "Sin autor"}</span></div>
-                    <div className="rs-field"><span className="rs-label">Estado</span><span>{reserva.fecha_reclamo?.slice(0, 10) || "Pendiente"}</span></div>
                   </div>
 
                   <div className="rs-card-footer">
@@ -232,11 +294,7 @@ function Reservas() {
                     >
                       {reserva.estado === "Reservado" ? "Reclamar y pasar a prestamo" : "Ya procesada"}
                     </button>
-                    <button
-                      className="rs-cancel-btn"
-                      disabled={reserva.estado !== "Reservado"}
-                      onClick={() => cancelar(reserva.id_reserva)}
-                    >
+                    <button className="rs-cancel-btn" disabled={reserva.estado !== "Reservado"} onClick={() => cancelar(reserva.id_reserva)}>
                       Cancelar
                     </button>
                   </div>
@@ -264,33 +322,16 @@ function Reservas() {
           <div className="lb-modal">
             <h3>Nueva reserva</h3>
             <label className="pr-form-label">Fecha reserva</label>
-            <input
-              className="lb-input"
-              type="date"
-              value={form.fecha_reserva}
-              onChange={(e) => setForm({ ...form, fecha_reserva: e.target.value })}
-            />
+            <input className="lb-input" type="date" value={form.fecha_reserva} onChange={(e) => setForm({ ...form, fecha_reserva: e.target.value })} />
 
             <label className="pr-form-label">Cliente</label>
-            <select
-              className="lb-input"
-              value={form.fk_cliente}
-              onChange={(e) => setForm({ ...form, fk_cliente: e.target.value })}
-            >
+            <select className="lb-input" value={form.fk_cliente} onChange={(e) => setForm({ ...form, fk_cliente: e.target.value })}>
               <option value="">Seleccionar cliente...</option>
-              {clientes.map((cliente) => (
-                <option key={cliente.id_cliente} value={cliente.id_cliente}>
-                  {cliente.nombre}
-                </option>
-              ))}
+              {clientes.map((cliente) => <option key={cliente.id_cliente} value={cliente.id_cliente}>{cliente.nombre}</option>)}
             </select>
 
             <label className="pr-form-label">Libro</label>
-            <select
-              className="lb-input"
-              value={form.fk_libro}
-              onChange={(e) => setForm({ ...form, fk_libro: e.target.value })}
-            >
+            <select className="lb-input" value={form.fk_libro} onChange={(e) => setForm({ ...form, fk_libro: e.target.value })}>
               <option value="">Seleccionar libro...</option>
               {libros.map((libro) => (
                 <option key={libro.id_libro} value={libro.id_libro} disabled={libro.stock < 1}>
@@ -313,16 +354,26 @@ function Reservas() {
           <div className="lb-modal">
             <h3>Reclamar reserva</h3>
             <label className="pr-form-label">Fecha limite del prestamo</label>
-            <input
-              className="lb-input"
-              type="date"
-              value={formReclamo.fecha_limite}
-              onChange={(e) => setFormReclamo({ ...formReclamo, fecha_limite: e.target.value })}
-            />
+            <input className="lb-input" type="date" value={formReclamo.fecha_limite} onChange={(e) => setFormReclamo({ ...formReclamo, fecha_limite: e.target.value })} />
             {error && <p className="lb-error">{error}</p>}
             <div className="lb-modal-btns">
               <button className="lb-cancel" onClick={() => setModalReclamar(false)}>Cancelar</button>
               <button className="lb-save" onClick={reclamar}>Convertir en prestamo</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {modalAprobar && (
+        <div className="lb-overlay">
+          <div className="lb-modal">
+            <h3>Aprobar solicitud</h3>
+            <label className="pr-form-label">Fecha de recogida</label>
+            <input className="lb-input" type="date" value={fechaRecogida} onChange={(e) => setFechaRecogida(e.target.value)} />
+            {error && <p className="lb-error">{error}</p>}
+            <div className="lb-modal-btns">
+              <button className="lb-cancel" onClick={() => setModalAprobar(false)}>Cancelar</button>
+              <button className="lb-save" onClick={aprobarSolicitud}>Aprobar y pasar a reserva</button>
             </div>
           </div>
         </div>
