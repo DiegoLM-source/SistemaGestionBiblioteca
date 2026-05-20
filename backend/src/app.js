@@ -55,9 +55,8 @@ app.use('/api/estantes', verificarToken, estanteRoutes);
 app.use('/api/multas', verificarToken, multaRoutes);
 app.use(errorHandler);
 app.use(cors({
-  origin: 'https://sistemagestionbiblioteca-1.onrender.com',
+  origin: '*',
   allowedHeaders: ['Content-Type', 'Authorization', 'Cache-Control', 'Pragma'],
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  credentials: true
 }));
 module.exports = app;
