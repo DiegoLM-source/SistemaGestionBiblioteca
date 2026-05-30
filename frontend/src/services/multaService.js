@@ -2,13 +2,15 @@ import API from "./api";
 import { cachedGet, clearCache } from "./cache";
 
 const BASE = "/multas";
-const MULTAS_CACHE_KEY = "multas:list";
+
+const makeCacheKey = (limit, offset) => `multas:list:${limit || 'def'}:${offset || 0}`;
 
 const clearMultaRelatedCache = () => {
-  clearCache(MULTAS_CACHE_KEY, "clientes:list", "prestamos:list", "libros:list");
+  clearCache(makeCacheKey(), "clientes:list", "prestamos:list", "libros:list");
 };
 
-export const getMultas = () => cachedGet(MULTAS_CACHE_KEY, () => API.get(BASE));
+export const getMultas = ({ limit = 100, offset = 0 } = {}) =>
+  cachedGet(makeCacheKey(limit, offset), () => API.get(BASE, { params: { limit, offset } }));
 
 export const createMulta = async (data) => {
   const res = await API.post(BASE, data);

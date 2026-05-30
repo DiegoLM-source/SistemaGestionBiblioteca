@@ -6,16 +6,20 @@ const {
 } = require('../utils/validators');
 
 class MultaService {
-  static async obtenerTodos({ rol, userId }) {
+  static async obtenerTodos(opts = {}) {
+    // soporta paginación: { rol, userId, limit, offset }
+    const { rol, userId, limit: l = 100, offset: o = 0 } = opts;
     const params = [];
     let where = '';
+    const limit = Number(l);
+    const offset = Number(o);
 
     if (Number(rol) === 2) {
       where = 'WHERE c.fk_user = ?';
       params.push(userId);
     }
 
-    const [multas] = await pool.execute(`
+    let sql = `
       SELECT
         m.*,
         c.nombre AS cliente_nombre,
@@ -47,7 +51,14 @@ class MultaService {
       ${where}
       GROUP BY m.id_multa
       ORDER BY m.fecha_multa DESC
-    `, params);
+    `;
+
+    if (limit) {
+      sql += ' LIMIT ? OFFSET ?';
+      params.push(limit, offset);
+    }
+
+    const [multas] = await pool.execute(sql, params);
 
     return multas.map((m) => ({
       ...m,

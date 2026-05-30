@@ -4,9 +4,11 @@ class MultaController {
 
     static async obtenerTodos(req, res) {
         try {
+            const { limit, offset } = req.query;
             const multas = await MultaService.obtenerTodos({
                 rol: req.usuario?.rol,
-                userId: req.usuario?.id
+                userId: req.usuario?.id,
+                limit, offset
             });
             res.json(multas);
         } catch (error) {

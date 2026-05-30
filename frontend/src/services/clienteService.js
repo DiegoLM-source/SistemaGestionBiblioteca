@@ -2,9 +2,11 @@ import API from "./api";
 import { cachedGet, clearCache } from "./cache";
 
 const BASE = "/clientes";
-const CLIENTES_CACHE_KEY = "clientes:list";
 
-export const getClientes = () => cachedGet(CLIENTES_CACHE_KEY, () => API.get(BASE));
+const makeCacheKey = (limit, offset) => `clientes:list:${limit || 'def'}:${offset || 0}`;
+
+export const getClientes = ({ limit = 100, offset = 0 } = {}) =>
+  cachedGet(makeCacheKey(limit, offset), () => API.get(BASE, { params: { limit, offset } }));
 
 export const createCliente = async (data) => {
   const res = await API.post(BASE, data);

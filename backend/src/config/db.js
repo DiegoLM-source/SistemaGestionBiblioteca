@@ -1,7 +1,7 @@
 const mysql = require('mysql2/promise');
 require('dotenv').config();
 
-const dbConfig = {
+let dbConfig = {
   host: process.env.DB_HOST || process.env.MYSQLHOST || process.env.MYSQL_HOST,
   user: process.env.DB_USER || process.env.MYSQLUSER || process.env.MYSQL_USER,
   password: process.env.DB_PASSWORD || process.env.MYSQLPASSWORD || process.env.MYSQL_PASS,
@@ -11,6 +11,25 @@ const dbConfig = {
   connectionLimit: 10,
   queueLimit: 0,
 };
+
+// Soporte para DATABASE_URL (Railway)
+if (process.env.DATABASE_URL) {
+  try {
+    const url = new URL(process.env.DATABASE_URL);
+    dbConfig = {
+      host: url.hostname,
+      user: decodeURIComponent(url.username),
+      password: decodeURIComponent(url.password),
+      database: url.pathname ? url.pathname.replace(/^\//, '') : undefined,
+      port: Number(url.port) || 3306,
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0,
+    };
+  } catch (err) {
+    console.warn('DATABASE_URL no válida, usando variables separadas.');
+  }
+}
 
 const pool = mysql.createPool(dbConfig);
 

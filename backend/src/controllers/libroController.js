@@ -4,7 +4,8 @@ class LibroController {
 
     static async obtenerTodos(req, res) {
         try {
-            const libros = await LibroService.obtenerTodos();
+            const { limit, offset } = req.query;
+            const libros = await LibroService.obtenerTodos({ limit, offset });
             res.json(libros);
         } catch (error) {
             res.status(error.status || 500).json({ message: error.message });

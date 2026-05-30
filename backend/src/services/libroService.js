@@ -39,12 +39,28 @@ class LibroService {
   }
 
   static async obtenerTodos() {
-    const [libros] = await pool.execute(`
+    // soporta paginación: { limit, offset }
+    const args = Array.from(arguments);
+    let limit = null;
+    let offset = 0;
+    if (args[0] && typeof args[0] === 'object') {
+      if (args[0].limit) limit = Number(args[0].limit);
+      if (args[0].offset) offset = Number(args[0].offset);
+    }
+
+    let sql = `
       SELECT l.*, c.nombre AS categoria, e.ubicacion AS estante
       FROM libro l
       JOIN categorias c ON l.fk_categoria = c.id_categoria
       JOIN estante e ON l.fk_estante = e.id_estante
-    `);
+    `;
+    const params = [];
+    if (limit !== null) {
+      sql += ' ORDER BY l.id_libro LIMIT ? OFFSET ?';
+      params.push(limit, offset);
+    }
+
+    const [libros] = await pool.execute(sql, params);
     return libros;
   }
 

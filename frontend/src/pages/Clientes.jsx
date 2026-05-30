@@ -12,6 +12,8 @@ const formVacio = { nombre: "", correo: "", telefono: "" };
 function Clientes() {
   const navigate = useNavigate();
   const [clientes, setClientes]   = useState([]);
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
   const [busqueda, setBusqueda]   = useState("");
   const [modal, setModal]         = useState(false);
   const [editando, setEditando]   = useState(null);
@@ -20,10 +22,13 @@ function Clientes() {
 
   useEffect(() => { cargarClientes(); }, []);
 
-  const cargarClientes = async () => {
+  const cargarClientes = async (append = false) => {
     try {
-      const res = await getClientes();
-      setClientes(res.data);
+      const res = await getClientes({ limit: 100, offset });
+      const data = res.data || [];
+      if (append) setClientes(prev => [...prev, ...data]);
+      else setClientes(data);
+      setHasMore(data.length === 100);
     } catch (err) {
       console.error("Error cargando clientes:", err);
     }
@@ -175,6 +180,20 @@ function Clientes() {
 
         <div className="lb-footer">
           <span className="lb-count">{clientesFiltrados.length} clientes</span>
+          {hasMore && (
+            <button className="lb-show-more" onClick={async () => {
+              const newOffset = offset + 100;
+              try {
+                const res = await getClientes({ limit: 100, offset: newOffset });
+                const data = res.data || [];
+                setClientes(prev => [...prev, ...data]);
+                setOffset(newOffset);
+                setHasMore(data.length === 100);
+              } catch (err) {
+                console.error('Error cargando más clientes', err);
+              }
+            }}>Mostrar más</button>
+          )}
         </div>
       </div>
 

@@ -4,7 +4,8 @@ class ClienteController {
 
     static async obtenerTodos(req, res) {
         try {
-            const clientes = await ClienteService.obtenerTodos();
+            const { limit, offset } = req.query;
+            const clientes = await ClienteService.obtenerTodos({ limit, offset });
             res.json(clientes);
         } catch (error) {
             res.status(error.status || 500).json({ message: error.message });
