@@ -33,6 +33,12 @@ body {
   isolation: isolate;
 }
 
+@media (max-width: 1024px) {
+  .login-page {
+    grid-template-columns: 1fr;
+  }
+}
+
 .login-glow {
   position: absolute;
   top: 16%;
@@ -58,6 +64,21 @@ body {
   align-items: center;
   gap: 34px;
   padding: 48px 36px 48px 56px;
+}
+
+@media (max-width: 1024px) {
+  .login-scene {
+    grid-template-columns: 1fr;
+    padding: 32px 24px;
+    gap: 24px;
+  }
+}
+
+@media (max-width: 640px) {
+  .login-scene {
+    padding: 20px 16px;
+    gap: 16px;
+  }
 }
 
 .login-copy {

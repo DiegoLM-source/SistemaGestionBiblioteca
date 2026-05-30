@@ -12,6 +12,18 @@
   margin-bottom: 16px;
 }
 
+@media (max-width: 768px) {
+  .rs-toolbar {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .rs-filtros {
+    flex-wrap: wrap;
+  }
+}
+
 .rs-filtros-label { font-size: 13px; color: #8a7666; margin-right: 4px; }
 
 .rs-filtro-btn {
@@ -75,6 +87,20 @@
   grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
   gap: 16px;
   padding-bottom: 8px;
+}
+
+@media (max-width: 1024px) {
+  .rs-grid {
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .rs-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
 }
 
 .rs-card.reservado {

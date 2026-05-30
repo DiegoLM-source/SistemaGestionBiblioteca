@@ -5,6 +5,18 @@
   margin-bottom: 16px;
 }
 
+@media (max-width: 768px) {
+  .mt-toolbar {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .mt-filtros {
+    flex-wrap: wrap;
+  }
+}
+
 .mt-filtros { display: flex; align-items: center; gap: 8px; }
 .mt-filtros-label { font-size: 13px; color: #8a7666; }
 
@@ -33,6 +45,20 @@
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 16px;
   padding-bottom: 8px;
+}
+
+@media (max-width: 1024px) {
+  .mt-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .mt-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
 }
 
 .mt-card.pendiente { border-left: 4px solid #e65100; }
