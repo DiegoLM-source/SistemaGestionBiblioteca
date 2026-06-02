@@ -59,4 +59,11 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'Cache-Control', 'Pragma'],
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 }));
+
+app.get('/api/version-db', async (req, res) => {
+  const pool = require('./config/db');
+  const [[row]] = await pool.execute('SELECT VERSION() as version');
+  res.json(row);
+});
+
 module.exports = app;
