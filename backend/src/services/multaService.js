@@ -7,62 +7,46 @@ const {
 
 class MultaService {
   static async obtenerTodos(opts = {}) {
-    // soporta paginación: { rol, userId, limit, offset }
     const { rol, userId, limit: l = 100, offset: o = 0 } = opts;
+    const limit = Number(l) || 100;
+    const offset = Number(o) || 0;
     const params = [];
     let where = '';
-    const limit = Number(l);
-    const offset = Number(o);
 
     if (Number(rol) === 2) {
-      where = 'WHERE c.fk_user = ?';
-      params.push(userId);
+        where = 'WHERE c.fk_user = ?';
+        params.push(userId);
     }
 
-    let sql = `
-      SELECT
-        m.*,
-        c.nombre AS cliente_nombre,
-        c.telefono AS cliente_telefono,
-        JSON_ARRAYAGG(
-          JSON_OBJECT(
-            'id_detalle', dm.id_detalle,
-            'tipo', dm.tipo,
-            'descripcion', dm.descripcion,
-            'monto', dm.monto,
-            'fecha', dm.fecha,
-            'fk_prestamo', dm.fk_prestamo,
-            'fk_libro', dm.fk_libro,
-            'libro', COALESCE(
-              l.titulo,
-              (
-                SELECT GROUP_CONCAT(lb.titulo SEPARATOR ', ')
-                FROM detalleprestamo dp
-                JOIN libro lb ON lb.id_libro = dp.fk_libro
-                WHERE dp.fk_prestamo = dm.fk_prestamo
-              )
-            )
-          )
-        ) AS detalles
-      FROM multa m
-      JOIN cliente c ON m.fk_cliente = c.id_cliente
-      LEFT JOIN detallemulta dm ON dm.fk_multa = m.id_multa
-      LEFT JOIN libro l ON l.id_libro = dm.fk_libro
-      ${where}
-      GROUP BY m.id_multa
-      ORDER BY m.fecha_multa DESC
+    // 1. Obtener multas sin JSON_ARRAYAGG
+    const sql = `
+        SELECT m.*, c.nombre AS cliente_nombre, c.telefono AS cliente_telefono
+        FROM multa m
+        JOIN cliente c ON m.fk_cliente = c.id_cliente
+        ${where}
+        ORDER BY m.fecha_multa DESC
+        LIMIT ? OFFSET ?
     `;
-
-    if (limit) {
-      sql += ' LIMIT ? OFFSET ?';
-      params.push(limit, offset);
-    }
+    params.push(limit, offset);
 
     const [multas] = await pool.execute(sql, params);
+    if (multas.length === 0) return [];
 
-    return multas.map((m) => ({
-      ...m,
-      detalles: typeof m.detalles === 'string' ? JSON.parse(m.detalles) : m.detalles,
+    // 2. Obtener detalles por separado
+    const ids = multas.map(m => m.id_multa);
+    const placeholders = ids.map(() => '?').join(',');
+
+    const [detalles] = await pool.execute(`
+        SELECT dm.*, l.titulo AS libro
+        FROM detallemulta dm
+        LEFT JOIN libro l ON l.id_libro = dm.fk_libro
+        WHERE dm.fk_multa IN (${placeholders})
+    `, ids);
+
+    // 3. Combinar en memoria
+    return multas.map(m => ({
+        ...m,
+        detalles: detalles.filter(d => d.fk_multa === m.id_multa)
     }));
   }
 

@@ -28,18 +28,16 @@ class ClienteService {
     return { nombre, correo, telefono };
   }
 
-  static async obtenerTodos() {
-    // soporta paginación: ?limit=100&offset=0
-    const args = Array.from(arguments);
-    let limit = 100;
-    let offset = 0;
-    if (args[0] && typeof args[0] === 'object') {
-      if (args[0].limit) limit = Number(args[0].limit);
-      if (args[0].offset) offset = Number(args[0].offset);
-    }
-    const [clientes] = await pool.execute('SELECT * FROM cliente ORDER BY id_cliente LIMIT ? OFFSET ?', [limit, offset]);
-    return clientes;
-  }
+  // ✅ Reemplaza el método obtenerTodos completo por esto:
+  static async obtenerTodos(opts = {}) {
+      const limit = Number(opts.limit) || 100;
+      const offset = Number(opts.offset) || 0;
+      const [clientes] = await pool.execute(
+          'SELECT * FROM cliente ORDER BY id_cliente LIMIT ? OFFSET ?',
+          [limit, offset]
+      );
+      return clientes;
+}
 
   static async obtenerPorId(id) {
     const [clientes] = await pool.execute('SELECT * FROM cliente WHERE id_cliente = ?', [id]);
