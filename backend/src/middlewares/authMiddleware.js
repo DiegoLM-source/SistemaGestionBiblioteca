@@ -26,6 +26,8 @@ const verificarToken = (req, res, next) => {
 
 const autorizarRoles = (...rolesPermitidos) => {
     return (req, res, next) => {
+        console.log('[ROL] req.usuario:', req.usuario);
+        console.log('[ROL] rolesPermitidos:', rolesPermitidos);
         // ✅ Protección defensiva — nunca lanza TypeError
         if (!req.usuario) {
             return res.status(401).json({
