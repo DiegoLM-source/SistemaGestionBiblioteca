@@ -1,0 +1,2 @@
+ALTER TABLE libro
+  ADD COLUMN IF NOT EXISTS imagen_url VARCHAR(500) NULL AFTER descripcion;

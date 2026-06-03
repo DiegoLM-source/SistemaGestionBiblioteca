@@ -9,7 +9,7 @@ import { logoutUser } from "../utils/auth";
 import "../styles/dashboard.css";
 import "../styles/libros.css";
 
-const formVacioLibro     = { isbn: "", titulo: "", autor: "", editorial: "", descripcion: "", stock: "", fk_categoria: "", fk_estante: "" };
+const formVacioLibro     = { isbn: "", titulo: "", autor: "", editorial: "", descripcion: "", imagen_url: "", stock: "", fk_categoria: "", fk_estante: "" };
 const formVacioCategoria = { nombre: "" };
 const formVacioEstante   = { descripcion: "", ubicacion: "" };
 
@@ -170,14 +170,14 @@ function Libros() {
           <table>
             <thead>
               <tr>
-                <th>ISBN</th><th>Título</th><th>Autor</th>
+                <th>Portada</th><th>ISBN</th><th>Título</th><th>Autor</th>
                 <th>Editorial</th><th>Categoría</th><th>Estante</th><th>Stock</th><th>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {librosFiltrados.length === 0 ? (
                 <tr>
-                  <td colSpan={8}>
+                  <td colSpan={9}>
                     <div className="lb-empty">
                       <FiBook size={32} className="lb-empty-icon" />
                       <span>No hay libros registrados</span>
@@ -190,6 +190,13 @@ function Libros() {
               ) : (
                 librosFiltrados.map(l => (
                   <tr key={l.id_libro}>
+                    <td>
+                      {l.imagen_url ? (
+                        <img className="lb-cover" src={l.imagen_url} alt={`Portada de ${l.titulo}`} loading="lazy" />
+                      ) : (
+                        <div className="lb-cover-placeholder"><FiBook size={18} /></div>
+                      )}
+                    </td>
                     <td>{l.isbn}</td>
                     <td><strong>{l.titulo}</strong></td>
                     <td>{l.autor}</td>
@@ -249,6 +256,7 @@ function Libros() {
                   { field: "autor", label: "Autor", type: "text"   },
                   { field: "editorial", label: "Editorial", type: "text"   },
                   { field: "descripcion", label: "Descripción", type: "text"   },
+                  { field: "imagen_url", label: "URL de imagen", type: "url" },
                 ].map(({ field, label, type }) => (
                   <input key={field} className="lb-input" type={type} placeholder={label}
                     value={form[field] || ""} onChange={e => setForm({ ...form, [field]: e.target.value })} />

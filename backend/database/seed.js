@@ -1,5 +1,7 @@
-const pool = require('../src/config/db');
 const fs = require('fs');
+
+const OUTPUT_SQL = process.env.SEED_OUTPUT_SQL === '1';
+const pool = OUTPUT_SQL ? null : require('../src/config/db');
 
 const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 const pad = (n, w = 6) => String(n).padStart(w, '0');
@@ -15,6 +17,12 @@ const titulos = [
   'La casa vacía','El último viaje','Sombras del tiempo','Antes del amanecer','La promesa rota',
   'Caminos cruzados','Ecos del pasado','Un día cualquiera','El jardín secreto','Historias pequeñas'
 ];
+
+const crearImagenLibro = (titulo, index) => {
+  const texto = encodeURIComponent(titulo.replace(/\s+\d+$/, '').slice(0, 28));
+  const color = ['070A26', '1F6F5B', '8A4F2D', '3D5A80', '5D576B'][index % 5];
+  return `https://placehold.co/240x340/${color}/FFFFFF?text=${texto}`;
+};
 
 async function insertarEstantes(cant = 200) {
   console.log('Insertando estantes...');
@@ -48,20 +56,21 @@ async function insertarLibros(cant = 200) {
   // asumimos que existe al menos una categoría (id_categoria = 1)
   const fk_categoria = 1;
   for (let i = 0; i < cant; i++) {
-    const isbn = `9780000${pad(i + Date.now() % 1000, 7)}`.slice(0,13);
+    const isbn = `978${String(1000000000 + i).padStart(10, '0')}`;
     const titulo = `${titulos[i % titulos.length]} ${pad(i)}`;
     const autor = `Autor ${pad(i % AUTHORS_COUNT)}`;
     const editorial = `Editorial ${rand(1,20)}`;
     const descripcion = `Descripción del libro ${i + 1}`;
+    const imagen_url = crearImagenLibro(titulo, i);
     const stock = rand(1, 20);
     const fk_estante = rand(1, SHELVES_COUNT);
     try {
       if (OUTPUT_SQL) {
-        sqlStatements.push(`INSERT INTO libro (isbn, titulo, autor, editorial, descripcion, stock, fk_categoria, fk_estante) VALUES (${escapeSql(isbn)}, ${escapeSql(titulo)}, ${escapeSql(autor)}, ${escapeSql(editorial)}, ${escapeSql(descripcion)}, ${stock}, ${fk_categoria}, ${fk_estante});`);
+        sqlStatements.push(`INSERT INTO libro (isbn, titulo, autor, editorial, descripcion, imagen_url, stock, fk_categoria, fk_estante) VALUES (${escapeSql(isbn)}, ${escapeSql(titulo)}, ${escapeSql(autor)}, ${escapeSql(editorial)}, ${escapeSql(descripcion)}, ${escapeSql(imagen_url)}, ${stock}, ${fk_categoria}, ${fk_estante});`);
       } else {
         await pool.execute(
-          'INSERT INTO libro (isbn, titulo, autor, editorial, descripcion, stock, fk_categoria, fk_estante) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-          [isbn, titulo, autor, editorial, descripcion, stock, fk_categoria, fk_estante]
+          'INSERT INTO libro (isbn, titulo, autor, editorial, descripcion, imagen_url, stock, fk_categoria, fk_estante) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [isbn, titulo, autor, editorial, descripcion, imagen_url, stock, fk_categoria, fk_estante]
         );
       }
     } catch (err) {
@@ -73,7 +82,14 @@ async function insertarLibros(cant = 200) {
 
 async function insertarPrestamos(cant = 200) {
   console.log('Insertando prestamos...');
-  const usuarios = Array.from({length: USERS_COUNT}, (_,i) => i+1);
+  let usuarios = [7, 8];
+  if (!OUTPUT_SQL) {
+    const [rows] = await pool.execute('SELECT id_user FROM usuarios ORDER BY id_user');
+    usuarios = rows.map((row) => row.id_user);
+  }
+  if (usuarios.length === 0) {
+    throw new Error('No hay usuarios disponibles para crear préstamos');
+  }
   for (let i = 0; i < cant; i++) {
     const fecha = new Date();
     fecha.setDate(fecha.getDate() - rand(0, 30));
@@ -158,15 +174,18 @@ async function main() {
 
 // --- config defaults and SQL output mode ---
 const USERS_COUNT = Number(process.env.SEED_USERS || 200);
-const BOOKS_COUNT = Number(process.env.SEED_BOOKS || 200);
+const BOOKS_COUNT = Number(process.env.SEED_BOOKS || 500);
 const SHELVES_COUNT = Number(process.env.SEED_SHELVES || 100);
 const AUTHORS_COUNT = Number(process.env.SEED_AUTHORS || 100);
-const CLIENTS_COUNT = Number(process.env.SEED_CLIENTS || 100);
+const CLIENTS_COUNT = Number(process.env.SEED_CLIENTS || 500);
 const LOANS_COUNT = Number(process.env.SEED_LOANS || 200);
 const FINES_COUNT = Number(process.env.SEED_FINES || 100);
 
-const OUTPUT_SQL = process.env.SEED_OUTPUT_SQL === '1';
 const sqlStatements = [];
+
+if (OUTPUT_SQL) {
+  sqlStatements.push('ALTER TABLE libro ADD COLUMN IF NOT EXISTS imagen_url VARCHAR(500) NULL AFTER descripcion;');
+}
 
 const escapeSql = (s) => {
   if (s === null || s === undefined) return 'NULL';

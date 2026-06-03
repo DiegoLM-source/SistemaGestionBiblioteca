@@ -45,6 +45,20 @@ tbody td {
     color: #333; 
 }
 
+.lb-cover,
+.lb-cover-placeholder {
+    width: 42px;
+    height: 58px;
+    border-radius: 6px;
+    border: 1px solid #e0e6f0;
+    background: #f4f6fb;
+    object-fit: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #7b8190;
+}
+
 .lb-actions { 
     display: flex; 
     gap: 6px; 

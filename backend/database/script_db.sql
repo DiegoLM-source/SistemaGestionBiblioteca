@@ -172,6 +172,7 @@ CREATE TABLE `libro` (
   `autor` varchar(100) DEFAULT NULL,
   `editorial` varchar(100) DEFAULT NULL,
   `descripcion` varchar(255) DEFAULT NULL,
+  `imagen_url` varchar(500) DEFAULT NULL,
   `stock` int NOT NULL,
   `fk_categoria` int NOT NULL,
   `fk_estante` int NOT NULL,
@@ -190,7 +191,7 @@ CREATE TABLE `libro` (
 
 LOCK TABLES `libro` WRITE;
 /*!40000 ALTER TABLE `libro` DISABLE KEYS */;
-INSERT INTO `libro` VALUES (1,'9786287860018','El corazón del rey','Karine Bernal Lobo','Planeta','Tapa Blanda',8,1,1),(2,'9788419169181','Boulevard','Flor M. Salvador','Montena','Tapa',15,1,1),(3,'9789585155336','Antes de diciembre','Joana Marcús','Montena','Rustica con solapas',5,1,1);
+INSERT INTO `libro` VALUES (1,'9786287860018','El corazón del rey','Karine Bernal Lobo','Planeta','Tapa Blanda','https://covers.openlibrary.org/b/isbn/9786287860018-L.jpg',8,1,1),(2,'9788419169181','Boulevard','Flor M. Salvador','Montena','Tapa','https://covers.openlibrary.org/b/isbn/9788419169181-L.jpg',15,1,1),(3,'9789585155336','Antes de diciembre','Joana Marcús','Montena','Rustica con solapas','https://covers.openlibrary.org/b/isbn/9789585155336-L.jpg',5,1,1);
 /*!40000 ALTER TABLE `libro` ENABLE KEYS */;
 UNLOCK TABLES;
 

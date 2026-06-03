@@ -9,13 +9,45 @@ const {
   createValidationError,
 } = require('../utils/validators');
 
+const isValidImageUrl = (value) => {
+  if (!value) return true;
+
+  try {
+    const url = new URL(value);
+    return ['http:', 'https:'].includes(url.protocol) && value.length <= 500;
+  } catch {
+    return false;
+  }
+};
+
 class LibroService {
+  static schemaReady = false;
+
+  static async ensureSchema() {
+    if (this.schemaReady) return;
+
+    const [columns] = await pool.execute(
+      `SELECT COLUMN_NAME
+       FROM information_schema.COLUMNS
+       WHERE TABLE_SCHEMA = DATABASE()
+       AND TABLE_NAME = 'libro'
+       AND COLUMN_NAME = 'imagen_url'`
+    );
+
+    if (columns.length === 0) {
+      await pool.execute('ALTER TABLE libro ADD COLUMN imagen_url VARCHAR(500) NULL AFTER descripcion');
+    }
+
+    this.schemaReady = true;
+  }
+
   static validarDatos(datos) {
     const isbn = normalizeText(datos.isbn);
     const titulo = normalizeText(datos.titulo);
     const autor = normalizeText(datos.autor) || null;
     const editorial = normalizeText(datos.editorial) || null;
     const descripcion = normalizeText(datos.descripcion) || null;
+    const imagen_url = normalizeText(datos.imagen_url) || null;
     const stock = Number(datos.stock);
     const fk_categoria = Number(datos.fk_categoria);
     const fk_estante = Number(datos.fk_estante);
@@ -36,10 +68,16 @@ class LibroService {
       throw createValidationError('Categoría y estante son obligatorios');
     }
 
-    return { isbn, titulo, autor, editorial, descripcion, stock, fk_categoria, fk_estante };
+    if (!isValidImageUrl(imagen_url)) {
+      throw createValidationError('La URL de la imagen debe ser http/https y no superar 500 caracteres');
+    }
+
+    return { isbn, titulo, autor, editorial, descripcion, imagen_url, stock, fk_categoria, fk_estante };
   }
 
   static async obtenerTodos() {
+    await this.ensureSchema();
+
     // soporta paginación: { limit, offset }
     const args = Array.from(arguments);
     let pagination = null;
@@ -64,6 +102,8 @@ class LibroService {
   }
 
   static async obtenerPorId(id) {
+    await this.ensureSchema();
+
     const [libros] = await pool.execute('SELECT * FROM libro WHERE id_libro = ?', [id]);
     if (libros.length === 0) {
       const error = new Error('Libro no encontrado');
@@ -74,29 +114,33 @@ class LibroService {
   }
 
   static async crear(datos) {
-    const { isbn, titulo, autor, editorial, descripcion, stock, fk_categoria, fk_estante } = this.validarDatos(datos);
+    await this.ensureSchema();
+
+    const { isbn, titulo, autor, editorial, descripcion, imagen_url, stock, fk_categoria, fk_estante } = this.validarDatos(datos);
     const [resultado] = await pool.execute(
-      `INSERT INTO libro (isbn, titulo, autor, editorial, descripcion, stock, fk_categoria, fk_estante)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [isbn, titulo, autor, editorial, descripcion, stock, fk_categoria, fk_estante]
+      `INSERT INTO libro (isbn, titulo, autor, editorial, descripcion, imagen_url, stock, fk_categoria, fk_estante)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [isbn, titulo, autor, editorial, descripcion, imagen_url, stock, fk_categoria, fk_estante]
     );
-    return { id_libro: resultado.insertId, isbn, titulo, autor, editorial, descripcion, stock, fk_categoria, fk_estante };
+    return { id_libro: resultado.insertId, isbn, titulo, autor, editorial, descripcion, imagen_url, stock, fk_categoria, fk_estante };
   }
 
   static async actualizar(id, datos) {
-    const { isbn, titulo, autor, editorial, descripcion, stock, fk_categoria, fk_estante } = this.validarDatos(datos);
+    await this.ensureSchema();
+
+    const { isbn, titulo, autor, editorial, descripcion, imagen_url, stock, fk_categoria, fk_estante } = this.validarDatos(datos);
     const [resultado] = await pool.execute(
       `UPDATE libro
-       SET isbn = ?, titulo = ?, autor = ?, editorial = ?, descripcion = ?, stock = ?, fk_categoria = ?, fk_estante = ?
+       SET isbn = ?, titulo = ?, autor = ?, editorial = ?, descripcion = ?, imagen_url = ?, stock = ?, fk_categoria = ?, fk_estante = ?
        WHERE id_libro = ?`,
-      [isbn, titulo, autor, editorial, descripcion, stock, fk_categoria, fk_estante, id]
+      [isbn, titulo, autor, editorial, descripcion, imagen_url, stock, fk_categoria, fk_estante, id]
     );
     if (resultado.affectedRows === 0) {
       const error = new Error('Libro no encontrado');
       error.status = 404;
       throw error;
     }
-    return { id_libro: id, isbn, titulo, autor, editorial, descripcion, stock, fk_categoria, fk_estante };
+    return { id_libro: id, isbn, titulo, autor, editorial, descripcion, imagen_url, stock, fk_categoria, fk_estante };
   }
 
   static async eliminar(id) {
