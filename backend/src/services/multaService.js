@@ -2,14 +2,14 @@ const pool = require('../config/db');
 const {
   normalizeText,
   isPositiveInteger,
+  normalizePagination,
   createValidationError,
 } = require('../utils/validators');
 
 class MultaService {
   static async obtenerTodos(opts = {}) {
     const { rol, userId, limit: l = 100, offset: o = 0 } = opts;
-    const limit = Number(l) || 100;
-    const offset = Number(o) || 0;
+    const { limit, offset } = normalizePagination(l, o);
     const params = [];
     let where = '';
 
@@ -25,9 +25,8 @@ class MultaService {
         JOIN cliente c ON m.fk_cliente = c.id_cliente
         ${where}
         ORDER BY m.fecha_multa DESC
-        LIMIT ? OFFSET ?
+        LIMIT ${limit} OFFSET ${offset}
     `;
-    params.push(limit, offset);
 
     const [multas] = await pool.execute(sql, params);
     if (multas.length === 0) return [];

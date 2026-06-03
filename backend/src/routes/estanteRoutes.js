@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../config/db');
 const { autorizarRoles } = require('../middlewares/authMiddleware');
+const { normalizePagination } = require('../utils/validators');
 
 const ADMIN = 1;
 
@@ -9,9 +10,8 @@ router.use(autorizarRoles(ADMIN));
 
 router.get('/', async (req, res) => {
     try {
-        const limit = Number(req.query.limit || 100);
-        const offset = Number(req.query.offset || 0);
-        const [rows] = await pool.execute('SELECT * FROM estante ORDER BY id_estante LIMIT ? OFFSET ?', [limit, offset]);
+        const { limit, offset } = normalizePagination(req.query.limit, req.query.offset);
+        const [rows] = await pool.execute(`SELECT * FROM estante ORDER BY id_estante LIMIT ${limit} OFFSET ${offset}`);
         res.json(rows);
     } catch (error) {
         res.status(500).json({ message: error.message });

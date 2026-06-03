@@ -4,6 +4,7 @@ const {
   isNonEmptyString,
   isValidEmail,
   isValidPhone,
+  normalizePagination,
   createValidationError,
 } = require('../utils/validators');
 
@@ -28,16 +29,13 @@ class ClienteService {
     return { nombre, correo, telefono };
   }
 
-  // ✅ Reemplaza el método obtenerTodos completo por esto:
   static async obtenerTodos(opts = {}) {
-      const limit = Number(opts.limit) || 100;
-      const offset = Number(opts.offset) || 0;
-      const [clientes] = await pool.execute(
-          'SELECT * FROM cliente ORDER BY id_cliente LIMIT ? OFFSET ?',
-          [limit, offset]
-      );
-      return clientes;
-}
+    const { limit, offset } = normalizePagination(opts.limit, opts.offset);
+    const [clientes] = await pool.execute(
+      `SELECT * FROM cliente ORDER BY id_cliente LIMIT ${limit} OFFSET ${offset}`
+    );
+    return clientes;
+  }
 
   static async obtenerPorId(id) {
     const [clientes] = await pool.execute('SELECT * FROM cliente WHERE id_cliente = ?', [id]);
