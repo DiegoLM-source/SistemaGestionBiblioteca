@@ -1,12 +1,13 @@
 import API from "./api";
-import { cachedGet, clearCache } from "./cache";
+import { cachedGet, clearCache, clearCacheByPrefix } from "./cache";
 
 const BASE = "/multas";
 
 const makeCacheKey = (limit, offset) => `multas:list:${limit || 'def'}:${offset || 0}`;
 
 const clearMultaRelatedCache = () => {
-  clearCache(makeCacheKey(), "clientes:list", "prestamos:list", "libros:list");
+  clearCacheByPrefix("multas:list:", "clientes:list:");
+  clearCache("prestamos:list", "libros:list");
 };
 
 export const getMultas = ({ limit = 100, offset = 0 } = {}) =>

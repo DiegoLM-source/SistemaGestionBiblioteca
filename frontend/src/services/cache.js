@@ -40,3 +40,10 @@ export const clearCache = (...keys) => {
   keys.forEach((key) => cache.delete(key));
 };
 
+export const clearCacheByPrefix = (...prefixes) => {
+  for (const key of cache.keys()) {
+    if (prefixes.some((prefix) => key.startsWith(prefix))) {
+      cache.delete(key);
+    }
+  }
+};
