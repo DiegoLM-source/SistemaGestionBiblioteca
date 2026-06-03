@@ -10,10 +10,12 @@ const reservaRoutes = require('./routes/reservaRoutes');
 const categoriaRoutes = require('./routes/categoriaRoutes');
 const estanteRoutes   = require('./routes/estanteRoutes');
 const multaRoutes = require('./routes/multaRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 const cron = require('node-cron');
 const MultaService = require('./services/multaService');
 const errorHandler = require('./middlewares/errorHandler');
 const { verificarToken } = require('./middlewares/authMiddleware');
+const AdminService = require('./services/adminService');
 
 const app = express();
 const procesarPrestamosVencidos = async () => {
@@ -57,6 +59,7 @@ app.use('/api/reservas', verificarToken, reservaRoutes);
 app.use('/api/categorias', verificarToken, categoriaRoutes);
 app.use('/api/estantes', verificarToken, estanteRoutes);
 app.use('/api/multas', verificarToken, multaRoutes);
+app.use('/api/admin', verificarToken, adminRoutes);
 app.use(errorHandler);
 app.use(cors({
   origin: '*',
@@ -69,5 +72,18 @@ app.get('/api/version-db', async (req, res) => {
   const [[row]] = await pool.execute('SELECT VERSION() as version');
   res.json(row);
 });
+
+// Ejecutar rellenado de imágenes una sola vez al inicio si la variable está activada
+if (process.env.FILL_IMAGES_ON_STARTUP === '1') {
+  setImmediate(async () => {
+    try {
+      console.log('[STARTUP] FILL_IMAGES_ON_STARTUP habilitado — rellenando imagenes...');
+      const updated = await AdminService.fillImages();
+      console.log(`[STARTUP] fillImages actualizó ${updated} registros.`);
+    } catch (err) {
+      console.error('[STARTUP] Error al rellenar imagenes:', err);
+    }
+  });
+}
 
 module.exports = app;
